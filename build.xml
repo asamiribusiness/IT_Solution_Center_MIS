@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="ITSolutionCenterMIS" default="dist" basedir=".">
+   
+    <!-- Property Definitions -->
+    <property name="app.name" value="ITSolutionCenterMIS"/>
+    <property name="app.version" value="1.0.0"/>
+    <property name="company.name" value="IT Solution Center"/>
+   
+    <!-- Build Directories -->
+    <property name="src.dir" value="src"/>
+    <property name="build.dir" value="build"/>
+    <property name="dist.dir" value="dist"/>
+    <property name="lib.dir" value="lib"/>
+    <property name="resources.dir" value="resources"/>
+    <property name="reports.dir" value="reports"/>
+   
+    <!-- Classpath Definition -->
+    <path id="project.classpath">
+        <fileset dir="${lib.dir}">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
+   
+    <!-- Clean Target -->
+    <target name="clean" description="Clean build directories">
+        <echo message="Cleaning build directories..."/>
+        <delete dir="${build.dir}"/>
+        <delete dir="${dist.dir}"/>
+        <delete dir="${reports.dir}"/>
+        <mkdir dir="${build.dir}"/>
+        <mkdir dir="${dist.dir}"/>
+        <mkdir dir="${reports.dir}"/>
+    </target>
+   
+    <!-- Compile Target -->
+    <target name="compile" depends="clean" description="Compile Java source files">
+        <echo message="Compiling source files..."/>
+       
+        <!-- Create build directory structure -->
+        <mkdir dir="${build.dir}/classes"/>
+        <mkdir dir="${build.dir}/resources"/>
+       
+        <!-- Copy resources -->
+        <copy todir="${build.dir}/resources">
+            <fileset dir="${resources.dir}" includes="**/*"/>
+        </copy>
+        <copy file="config.properties" tofile="${build.dir}/classes/config.properties"/>
+       
+        <!-- Compile Java files -->
+        <javac srcdir="${src.dir}"
+               destdir="${build.dir}/classes"
+               includeantruntime="false"
+               debug="true"
+               debuglevel="lines,vars,source">
+            <classpath refid="project.classpath"/>
+            <compilerarg value="-Xlint:unchecked"/>
+            <compilerarg value="-Xlint:deprecation"/>
+        </javac>
+       
+        <echo message="Compilation completed successfully!"/>
+    </target>
+   
+    <!-- Create JAR Target -->
+    <target name="jar" depends="compile" description="Create application JAR file">
+        <echo message="Creating JAR file..."/>
+       
+        <!-- Copy libraries -->
+        <mkdir dir="${dist.dir}/lib"/>
+        <copy todir="${dist.dir}/lib">
+            <fileset dir="${lib.dir}"/>
+        </copy>
+       
+        <!-- Create JAR manifest -->
+        <manifest file="${build.dir}/MANIFEST.MF">
+            <attribute name="Built-By" value="${user.name}"/>
+            <attribute name="Main-Class" value="com.itsolutioncenter.Main"/>
+            <attribute name="Class-Path"
+                       value=". lib/mysql-connector-java-8.0.33.jar lib/jbcrypt-0.4.jar lib/jcalendar-1.4.jar lib/swingx-1.6.1.jar lib/beansbinding-1.2.1.jar"/>
+            <attribute name="Implementation-Title" value="${app.name}"/>
+            <attribute name="Implementation-Version" value="${app.version}"/>
+            <attribute name="Implementation-Vendor" value="${company.name}"/>
+            <attribute name="Created-By" value="Apache Ant"/>
+        </manifest>
+       <libraries>
+                <library dir="${lib.dir}">
+                    <file>${lib.dir}/swingx-1.6.1.jar</file>
+                    <file>${lib.dir}/beansbinding-1.2.1.jar</file>
+                </library>
+            </libraries>
+        <!-- Create JAR file -->
+        <jar destfile="${dist.dir}/${app.name}.jar"
+             basedir="${build.dir}/classes"
+             manifest="${build.dir}/MANIFEST.MF">
+            <fileset dir="${build.dir}/resources" includes="**/*"/>
+            <metainf dir="." includes="config.properties"/>
+        </jar>
+       
+        <echo message="JAR file created: ${dist.dir}/${app.name}.jar"/>
+    </target>
+   
+    <!-- Create Distribution Package -->
+    <target name="dist" depends="jar" description="Create distribution package">
+        <echo message="Creating distribution package..."/>
+       
+        <!-- Create directory structure -->
+        <mkdir dir="${dist.dir}/package"/>
+        <mkdir dir="${dist.dir}/package/config"/>
+        <mkdir dir="${dist.dir}/package/docs"/>
+        <mkdir dir="${dist.dir}/package/database"/>
+       
+        <!-- Copy files -->
+        <copy file="${dist.dir}/${app.name}.jar"
+              todir="${dist.dir}/package"/>
+        <copy todir="${dist.dir}/package/lib">
+            <fileset dir="${dist.dir}/lib"/>
+        </copy>
+        <copy file="config.properties"
+              todir="${dist.dir}/package/config"/>
+        <copy file="README.md"
+              todir="${dist.dir}/package/docs"/>
+        <copy file="database_setup.sql"
+              todir="${dist.dir}/package/database"/>
+       
+        <!-- Create startup scripts -->
+        <echo file="${dist.dir}/package/run.bat"
+              message="@echo off${line.separator}java -jar ${app.name}.jar${line.separator}pause"/>
+       
+        <echo file="${dist.dir}/package/run.sh">
+#!/bin/bash
+java -jar ${app.name}.jar</echo>
+        <chmod file="${dist.dir}/package/run.sh" perm="755"/>
+       
+        <!-- Create README -->
+        <echo file="${dist.dir}/package/README.txt">
+${app.name} v${app.version}
+=========================================
+Installation Instructions:
+1. Install Java 8 or higher
+2. Install MySQL Server 8.0 or higher
+3. Run database_setup.sql in MySQL
+4. Update config.properties with your database credentials
+5. Run the application:
+   - Windows: Double-click run.bat
+   - Linux/Mac: ./run.sh
+
+System Requirements:
+- Java Runtime Environment 8+
+- MySQL Database 8.0+
+- Minimum 2GB RAM
+- 500MB Disk Space
+
+Contact: support@itsolutioncenter.com
+=========================================</echo>
+       
+        <!-- Create ZIP package -->
+        <zip destfile="${dist.dir}/${app.name}-${app.version}.zip"
+             basedir="${dist.dir}/package"/>
+       
+        <echo message="Distribution package created: ${dist.dir}/${app.name}-${app.version}.zip"/>
+    </target>
+   
+    <!-- Run Application -->
+    <target name="run" depends="jar" description="Run the application">
+        <echo message="Running application..."/>
+        <java jar="${dist.dir}/${app.name}.jar" fork="true">
+            <classpath>
+                <fileset dir="${dist.dir}/lib">
+                    <include name="**/*.jar"/>
+                </fileset>
+            </classpath>
+        </java>
+    </target>
+   
+    <!-- Generate Documentation -->
+    <target name="javadoc" description="Generate JavaDoc">
+        <echo message="Generating JavaDoc..."/>
+        <javadoc destdir="${reports.dir}/javadoc"
+                 author="true"
+                 version="true"
+                 use="true"
+                 windowtitle="${app.name} API">
+            <fileset dir="${src.dir}" defaultexcludes="yes">
+                <include name="**/*.java"/>
+            </fileset>
+            <classpath refid="project.classpath"/>
+            <doctitle><![CDATA[<h1>${app.name} API Documentation</h1>]]></doctitle>
+            <bottom><![CDATA[<i>Copyright © 2024 ${company.name}. All rights reserved.</i>]]></bottom>
+        </javadoc>
+        <echo message="JavaDoc generated: ${reports.dir}/javadoc"/>
+    </target>
+   
+    <!-- Run Tests -->
+    <target name="test" depends="compile" description="Run unit tests">
+        <echo message="Running tests..."/>
+        <mkdir dir="${reports.dir}/tests"/>
+        <junit printsummary="yes" haltonfailure="no">
+            <classpath>
+                <path refid="project.classpath"/>
+                <pathelement location="${build.dir}/classes"/>
+            </classpath>
+            <formatter type="xml"/>
+            <batchtest todir="${reports.dir}/tests">
+                <fileset dir="${src.dir}">
+                    <include name="**/*Test.java"/>
+                </fileset>
+            </batchtest>
+        </junit>
+        <junitreport todir="${reports.dir}/tests">
+            <fileset dir="${reports.dir}/tests">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report format="frames" todir="${reports.dir}/tests/html"/>
+        </junitreport>
+        <echo message="Test reports generated: ${reports.dir}/tests/html"/>
+    </target>
+   
+    <!-- Create Database Backup -->
+    <target name="backup-db" description="Create database backup">
+        <echo message="Creating database backup..."/>
+        <tstamp>
+            <format property="backup.time" pattern="yyyyMMdd-HHmmss"/>
+        </tstamp>
+        <exec executable="mysqldump"
+              output="${dist.dir}/backup-${backup.time}.sql">
+            <arg line="-u itsolution_app -pSecurePass123! it_solution_center"/>
+        </exec>
+        <echo message="Database backup created: ${dist.dir}/backup-${backup.time}.sql"/>
+    </target>
+   
+    <!-- Deploy to Server -->
+    <target name="deploy" depends="dist" description="Deploy to server">
+        <echo message="Deploying application..."/>
+        <!-- Add your deployment logic here -->
+        <echo message="Deployment completed!"/>
+    </target>
+   
+    <!-- Help Target -->
+    <target name="help" description="Show help message">
+        <echo message="Available targets:"/>
+        <echo message="  clean      - Clean build directories"/>
+        <echo message="  compile    - Compile source files"/>
+        <echo message="  jar        - Create JAR file"/>
+        <echo message="  dist       - Create distribution package"/>
+        <echo message="  run        - Run the application"/>
+        <echo message="  javadoc    - Generate JavaDoc"/>
+        <echo message="  test       - Run unit tests"/>
+        <echo message="  backup-db  - Create database backup"/>
+        <echo message="  deploy     - Deploy to server"/>
+        <echo message="  help       - Show this help message"/>
+    </target>
+   
+</project>
