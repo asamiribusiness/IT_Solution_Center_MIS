@@ -1098,53 +1098,9 @@ public void exportTableToCSV() {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void txtStdNameKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtStdNameKeyPressed
-        txtStdName.setBackground(Color.WHITE);
-        txtStdName.setBorder(UIManager.getBorder("TextField.border"));
-        txtStdName.setForeground(Color.BLACK);
-    }//GEN-LAST:event_txtStdNameKeyPressed
-
-    private void txtEmailKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtEmailKeyPressed
-        txtEmail.setBackground(Color.WHITE);
-        txtEmail.setBorder(UIManager.getBorder("TextField.border"));
-        txtEmail.setForeground(Color.BLACK);
-    }//GEN-LAST:event_txtEmailKeyPressed
-
-    private void cmbPaymentStMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cmbPaymentStMouseClicked
-        cmbPaymentSt.setBorder(UIManager.getBorder("TextField.border"));
-    }//GEN-LAST:event_cmbPaymentStMouseClicked
-
-    private void txtTotalFeeKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtTotalFeeKeyPressed
-        txtTotalFee.setBackground(Color.WHITE);
-        txtTotalFee.setBorder(UIManager.getBorder("TextField.border"));
-        txtTotalFee.setForeground(Color.BLACK);
-    }//GEN-LAST:event_txtTotalFeeKeyPressed
-
-    private void txtAttendanceKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtAttendanceKeyPressed
-        txtAttendance.setBackground(Color.WHITE);
-        txtAttendance.setBorder(UIManager.getBorder("TextField.border"));
-        txtAttendance.setForeground(Color.BLACK);
-    }//GEN-LAST:event_txtAttendanceKeyPressed
-
-    private void btnInsertActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInsertActionPerformed
-    try {
-        enrollStudent();
-    } catch (SQLException ex) {
-        JOptionPane.showMessageDialog(null, ex.getMessage());
-    }
-    }//GEN-LAST:event_btnInsertActionPerformed
-
-    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
-        deleteCourse();
-    }//GEN-LAST:event_btnDeleteActionPerformed
-
-    private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
-        updateData();
-    }//GEN-LAST:event_btnUpdateActionPerformed
-
-    private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
-        searchData();
-    }//GEN-LAST:event_btnSearchActionPerformed
+    private void btnCSVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCSVActionPerformed
+        exportTableToCSV();
+    }//GEN-LAST:event_btnCSVActionPerformed
 
     private void txtPhoneKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtPhoneKeyPressed
         txtPhone.setBackground(Color.WHITE);
@@ -1152,25 +1108,69 @@ public void exportTableToCSV() {
         txtPhone.setForeground(Color.BLACK);
     }//GEN-LAST:event_txtPhoneKeyPressed
 
-    private void cmbCourseNameMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cmbCourseNameMouseClicked
-        cmbCourseName.setBackground(Color.WHITE);
-        cmbCourseName.setBorder(UIManager.getBorder("TextField.border"));
-        cmbCourseName.setForeground(Color.BLACK);
-    }//GEN-LAST:event_cmbCourseNameMouseClicked
-
     private void txtFeePaidKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtFeePaidKeyPressed
         txtFeePaid.setBackground(Color.WHITE);
         txtFeePaid.setBorder(UIManager.getBorder("TextField.border"));
         txtFeePaid.setForeground(Color.BLACK);
     }//GEN-LAST:event_txtFeePaidKeyPressed
 
+    private void cmbCourseNameMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cmbCourseNameMouseClicked
+        cmbCourseName.setBackground(Color.WHITE);
+        cmbCourseName.setBorder(UIManager.getBorder("TextField.border"));
+        cmbCourseName.setForeground(Color.BLACK);
+    }//GEN-LAST:event_cmbCourseNameMouseClicked
+
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         clearControls();
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        loadEnrollments();
-    }//GEN-LAST:event_jButton2ActionPerformed
+    private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
+        updateData();
+    }//GEN-LAST:event_btnUpdateActionPerformed
+
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+        deleteCourse();
+    }//GEN-LAST:event_btnDeleteActionPerformed
+
+    private void btnInsertActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInsertActionPerformed
+        try {
+            enrollStudent();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, ex.getMessage());
+        }
+    }//GEN-LAST:event_btnInsertActionPerformed
+
+    private void txtAttendanceKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtAttendanceKeyPressed
+        txtAttendance.setBackground(Color.WHITE);
+        txtAttendance.setBorder(UIManager.getBorder("TextField.border"));
+        txtAttendance.setForeground(Color.BLACK);
+    }//GEN-LAST:event_txtAttendanceKeyPressed
+
+    private void txtTotalFeeKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtTotalFeeKeyPressed
+        txtTotalFee.setBackground(Color.WHITE);
+        txtTotalFee.setBorder(UIManager.getBorder("TextField.border"));
+        txtTotalFee.setForeground(Color.BLACK);
+    }//GEN-LAST:event_txtTotalFeeKeyPressed
+
+    private void cmbPaymentStMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cmbPaymentStMouseClicked
+        cmbPaymentSt.setBorder(UIManager.getBorder("TextField.border"));
+    }//GEN-LAST:event_cmbPaymentStMouseClicked
+
+    private void txtEmailKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtEmailKeyPressed
+        txtEmail.setBackground(Color.WHITE);
+        txtEmail.setBorder(UIManager.getBorder("TextField.border"));
+        txtEmail.setForeground(Color.BLACK);
+    }//GEN-LAST:event_txtEmailKeyPressed
+
+    private void txtStdNameKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtStdNameKeyPressed
+        txtStdName.setBackground(Color.WHITE);
+        txtStdName.setBorder(UIManager.getBorder("TextField.border"));
+        txtStdName.setForeground(Color.BLACK);
+    }//GEN-LAST:event_txtStdNameKeyPressed
+
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        loadStatistics();
+    }//GEN-LAST:event_jButton5ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         clearFilters();
@@ -1180,13 +1180,13 @@ public void exportTableToCSV() {
         filterEnrollments();
     }//GEN-LAST:event_jButton3ActionPerformed
 
-    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-        loadStatistics();
-    }//GEN-LAST:event_jButton5ActionPerformed
+    private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
+        searchData();
+    }//GEN-LAST:event_btnSearchActionPerformed
 
-    private void btnCSVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCSVActionPerformed
-        exportTableToCSV();
-    }//GEN-LAST:event_btnCSVActionPerformed
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        loadEnrollments();
+    }//GEN-LAST:event_jButton2ActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

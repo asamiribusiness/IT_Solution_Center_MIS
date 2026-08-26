@@ -176,6 +176,9 @@
                 <Property name="mnemonic" type="int" value="110"/>
                 <Property name="text" type="java.lang.String" value="&#x645;&#x62f;&#x6cc;&#x631;&#x6cc;&#x62a; &#x6a9;&#x627;&#x631;&#x622;&#x645;&#x648;&#x632;&#x627;&#x646;"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="internManagMenuItemActionPerformed"/>
+              </Events>
               <AuxValues>
                 <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="internManagMenuItem.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);"/>
               </AuxValues>

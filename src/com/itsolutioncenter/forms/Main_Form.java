@@ -231,6 +231,11 @@ public class Main_Form extends javax.swing.JFrame {
         internManagMenuItem.setMnemonic('n');
         internManagMenuItem.setText("مدیریت کارآموزان");
         internManagMenuItem.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
+        internManagMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                internManagMenuItemActionPerformed(evt);
+            }
+        });
         jMenu8.add(internManagMenuItem);
 
         internApplicationMenuItem.setMnemonic('c');
@@ -567,6 +572,10 @@ public class Main_Form extends javax.swing.JFrame {
         MainDesktop.add(eform);
         eform.setVisible(true);
     }//GEN-LAST:event_expenseMenuItemActionPerformed
+
+    private void internManagMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_internManagMenuItemActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_internManagMenuItemActionPerformed
     private void showAccessDenied(String module) {
         JOptionPane.showMessageDialog(this,
             "Access Denied!\n\nYou don't have permission to access " + module + ".\n" +

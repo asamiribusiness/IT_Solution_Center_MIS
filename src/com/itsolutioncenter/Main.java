@@ -10,8 +10,8 @@ import javax.swing.UnsupportedLookAndFeelException;
 public class Main {
    
     public static void main(String[] args) {
-       // AnimatedSplashScreen.showAndLaunch(() -> {
-      // SplashScreen.showSplashAndLaunch(()->{
+      
+       //SplashScreen.showSplashAndLaunch(()->{
         // Set look and feel
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -37,5 +37,5 @@ public class Main {
                 System.exit(1);
             }
         });
-       // });
+        //});
     }}
