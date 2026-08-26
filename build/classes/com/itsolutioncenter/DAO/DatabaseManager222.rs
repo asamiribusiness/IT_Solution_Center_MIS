@@ -1,0 +1,5 @@
+com.itsolutioncenter.dao.DatabaseManager
+null
+com.itsolutioncenter.dao.DatabaseManager222$InstanceHolder
+com.itsolutioncenter.dao.DatabaseManager$InstanceHolder
+com.itsolutioncenter.dao.DatabaseManager222

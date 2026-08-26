@@ -120,7 +120,7 @@ public int updateUser(int userID,String username,String email,String fullName,
     }
     // Get all users
     public List<Map<String,Object>> getAllUsers() {
-        return dbManager.getAllUsers1();
+        return dbManager.getAllUsersRaw();
     }
     // Get active users
     public List<User> getActiveUser() {
@@ -176,7 +176,7 @@ public int updateUser(int userID,String username,String email,String fullName,
     public static Permission getPermissions(String userType) {
         try {
            String sql = "SELECT * FROM permissions WHERE user_type = '"+userType+"'";
-            rs=DatabaseManager.executeSimpleQuery(sql);
+            rs=dbManager.executeSimpleQuery(sql);
             if (rs.next()) {
                 return new Permission(
                     rs.getBoolean("can_view"),

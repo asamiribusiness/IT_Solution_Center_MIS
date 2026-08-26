@@ -5,6 +5,7 @@ import com.itsolutioncenter.dao.DatabaseManager;
 import com.itsolutioncenter.util.Validator;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.SQLException;
 import java.util.Date;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -108,9 +109,9 @@ public class ClientManagementForm extends javax.swing.JInternalFrame {
             "Confirm Delete",
             JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION) {
-               dbManager.delete("clients", "client_id = ?", clientID);
-                JOptionPane.showMessageDialog(this, "Client deleted successfully!");
-                loadClientData(); }
+            dbManager.delete("clients", "client_id = ?", clientID);
+            JOptionPane.showMessageDialog(this, "Client deleted successfully!");
+            loadClientData(); }
         } 
      private void insertData()
      {

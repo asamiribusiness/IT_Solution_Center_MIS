@@ -37,18 +37,16 @@ private ResultSet rs;
         model=dbManager.getTableModel(query, tblAttendance);
         tblAttendance.setModel(model);
     }
-    private void loadCourses()
-    {
-        try{
-         query="select course_code, course_name from courses";   
-         rs=DatabaseManager.executeSimpleQuery(query);
-         while(rs.next())
-         {
-             cmbCourse.addItem(rs.getString("course_code"));//+" - "+rs.getString("course_name"));
-         }
-        }catch(SQLException e){JOptionPane.showMessageDialog(this, e.getMessage());}
-        
+private void loadCourses() {
+    String query = "select course_code, course_name from courses";
+    try (ResultSet rs = dbManager.executeSimpleQuery(query)) {
+        while (rs.next()) {
+            cmbCourse.addItem(rs.getString("course_code"));
+        }
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this, "Failed to load courses: " + e.getMessage());
     }
+}
     private void loadSelectedCourseAttendance()
     {
         courseCode=cmbCourse.getSelectedItem().toString();

@@ -61,7 +61,7 @@ public class UserRightsForm extends javax.swing.JInternalFrame {
     private void loadUserNames ()
     {
     query="Select username from users order by user_id";
-    rs=DatabaseManager.executeSimpleQuery(query);
+    rs=dbManager.executeSimpleQuery(query);
     try
     {
       while(rs.next())

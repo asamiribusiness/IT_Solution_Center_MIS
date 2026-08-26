@@ -170,10 +170,10 @@ private String FullName,Role;
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
        username=String.valueOf(txtUserName.getText().trim());
        password=new String(txtPassword.getPassword());
-       if(!Validator.validateRequired(txtUserName, "User Name"))
-       {
-           return;
-       }
+//       if(!Validator.validateRequired(txtUserName, "User Name"))
+//       {
+//           return;
+//       }
       if(!Validator.validateRequired(txtPassword, "Password"))
       {
          return;
