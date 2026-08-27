@@ -41,7 +41,7 @@ private DefaultTableModel model=new DefaultTableModel();
         "clients.client_name, projects.service_type, projects.start_date," +
         "projects.`status`, projects.budget, 1+2 as progress FROM clients " +
         "INNER JOIN projects ON projects.client_id = clients.client_id";
-        model=DatabaseManager.getTableModel(query, tblProjectList);
+        model=dbManager.getTableModel(query, tblProjectList);
         tblProjectList.setModel(model);
     }
     private void filterByStatus(String status) {

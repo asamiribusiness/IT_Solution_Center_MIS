@@ -64,7 +64,7 @@ public class UserRightsForm extends javax.swing.JInternalFrame {
 //    rs=DatabaseManager.executeSimpleQuery(query);
 cmbUsername.removeAllItems();
 cmbUsername.addItem("-- Username --");
-List<Map<String,Object>>usernames=dbManager.getAllUsers1();
+List<Map<String,Object>>usernames=dbManager.getAllUsersRaw();
 for(Map<String,Object>users:usernames){
     cmbUsername.addItem(users.get("username").toString());
 }

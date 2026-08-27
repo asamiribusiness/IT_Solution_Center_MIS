@@ -39,7 +39,7 @@ private ResultSet rs;
    " INNER JOIN course_enrollments ON course_enrollments.enrollment_id = attendance.enrollment_id" +
    " INNER JOIN courses ON courses.course_id = course_enrollments.course_id" +
    " INNER JOIN students ON students.student_id = course_enrollments.student_id";
-        model=DatabaseManager.getTableModel(query, tblAttendance);
+        model=dbManager.getTableModel(query, tblAttendance);
         tblAttendance.setModel(model);
     }
     private void loadCourses()
@@ -75,7 +75,7 @@ private ResultSet rs;
    " INNER JOIN students ON students.student_id = course_enrollments.student_id"+
         " AND course_enrollments.enrollment_id = attendance.enrollment_id"+
                 " where course_code='"+courseCode+"'";
-        model=DatabaseManager.getTableModel(query, tblAttendance);
+        model=dbManager.getTableModel(query, tblAttendance);
         tblAttendance.setModel(model);
     }
     private void applyStatus()

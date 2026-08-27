@@ -126,7 +126,7 @@ public class StudentListForm extends JFrame {
        
         try  {
             String query = "SELECT * FROM students ORDER BY student_id";
-            ResultSet rs = DatabaseManager.executeSimpleQuery(query);
+            ResultSet rs = dbManager.executeSimpleQuery(query);
            
             while (rs.next()) {
                 Student student = new Student(

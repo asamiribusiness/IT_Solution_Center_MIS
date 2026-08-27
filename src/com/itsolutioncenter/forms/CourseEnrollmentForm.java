@@ -102,7 +102,7 @@ private void loadEnrollments()
         "course_enrollments.payment_status,course_enrollments.attendance_percentage,course_enrollments.certificate_issued," +
         "course_enrollments.notes FROM courses INNER JOIN course_enrollments ON " +
         "course_enrollments.course_id = courses.course_id ORDER BY course_enrollments.enrollment_id";
-       tableModel=DatabaseManager.getTableModel(query,tblEnrollment);
+       tableModel=db.getTableModel(query,tblEnrollment);
        tblEnrollment.setModel(tableModel);     
        colorTableRows();
     }
@@ -169,7 +169,7 @@ private void loadSelectedRowToForm() {
                 // Search by username OR full name only (non-numeric)
                 query= "select * from course_enrollments where student_name LIKE '"+searchText+"' OR student_phone LIKE '"+searchText+"'";
             }
-            tableModel=DatabaseManager.getTableModel(query,tblEnrollment);
+            tableModel=db.getTableModel(query,tblEnrollment);
             tblEnrollment.setModel(tableModel); 
             txtSearch.setText("");
     }

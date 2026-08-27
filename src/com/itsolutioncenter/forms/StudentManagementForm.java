@@ -304,7 +304,7 @@ public class StudentManagementForm extends javax.swing.JInternalFrame {
     private void loadStudentData(String studentId) {
         try  {
             query = "SELECT * FROM students WHERE student_id='"+studentId+"'";
-            ResultSet rs =DatabaseManager.executeSimpleQuery(query);
+            ResultSet rs =dbManager.executeSimpleQuery(query);
             if (rs.next()) {
                 // Populate form fields
   txtID.setText(rs.getString("student_id"));
