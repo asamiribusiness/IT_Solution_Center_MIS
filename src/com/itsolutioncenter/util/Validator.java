@@ -17,7 +17,7 @@ private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@
     public static boolean validateRequired(JTextField field,String fieldName) {
         if (field == null || field.getText().trim().isEmpty()) {
             //highlightInvalidFields(field);
-        field.requestFocusInWindow();
+        field.requestFocus();
         field.setBackground(new Color(255,230,230));
         field.setForeground(Color.red);
         field.setBorder(BorderFactory.createLineBorder(Color.yellow,2));
