@@ -176,18 +176,12 @@ public int updateUser(int userID,String username,String email,String fullName,
     public static Permission getPermissions(String userType) {
         try {
            String sql = "SELECT * FROM permissions WHERE user_type = '"+userType+"'";
-            rs=dbManager.executeSimpleQuery(sql);
-            if (rs.next()) {
-                return new Permission(
-                    rs.getBoolean("can_view"),
-                    rs.getBoolean("can_add"),
-                    rs.getBoolean("can_edit"),
-                    rs.getBoolean("can_delete"),
-                    rs.getBoolean("can_report"),
-                    rs.getBoolean("can_export"),
-                    rs.getBoolean("can_manage_users")
-                );
-            }
+           List<Map<String,Object>>permission=dbManager.select(sql);
+           for(Map<String,Object>perm:permission){
+               return new Permission((boolean)perm.get("can_view"),(boolean)perm.get("can_add"),(boolean)perm.get("can_edit"),
+               (boolean)perm.get("can_delete"),(boolean)perm.get("can_report"),
+                       (boolean)perm.get("can_export"),(boolean)perm.get("can_manage_users"));
+           }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, e.getMessage());
         }
