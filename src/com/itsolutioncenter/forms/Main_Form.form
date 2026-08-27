@@ -12,6 +12,15 @@
         <Property name="text" type="java.lang.String" value="jMenuItem7"/>
       </Properties>
     </Component>
+    <Container class="javax.swing.JMenu" name="jMenu3">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="jMenu3"/>
+      </Properties>
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout">
+        <Property name="useNullLayout" type="boolean" value="true"/>
+      </Layout>
+    </Container>
     <Menu class="javax.swing.JMenuBar" name="menuBar">
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_LayoutCodePost" type="java.lang.String" value="menuBar.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);"/>
@@ -125,6 +134,58 @@
             </MenuItem>
           </SubComponents>
         </Menu>
+        <Menu class="javax.swing.JMenu" name="jMenu8">
+          <Properties>
+            <Property name="mnemonic" type="int" value="73"/>
+            <Property name="text" type="java.lang.String" value="&#x6a9;&#x627;&#x631;&#x622;&#x645;&#x648;&#x632;"/>
+          </Properties>
+          <SubComponents>
+            <MenuItem class="javax.swing.JMenuItem" name="internManagMenuItem">
+              <Properties>
+                <Property name="mnemonic" type="int" value="110"/>
+                <Property name="text" type="java.lang.String" value="&#x645;&#x62f;&#x6cc;&#x631;&#x6cc;&#x62a; &#x6a9;&#x627;&#x631;&#x622;&#x645;&#x648;&#x632;&#x627;&#x646;"/>
+              </Properties>
+              <AuxValues>
+                <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="internManagMenuItem.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);"/>
+              </AuxValues>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="internApplicationMenuItem">
+              <Properties>
+                <Property name="mnemonic" type="int" value="99"/>
+                <Property name="text" type="java.lang.String" value="&#x641;&#x648;&#x631;&#x645; &#x62f;&#x631;&#x62e;&#x648;&#x627;&#x633;&#x62a;"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="internApplicationMenuItemActionPerformed"/>
+              </Events>
+              <AuxValues>
+                <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="internApplicationMenuItem.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);"/>
+              </AuxValues>
+            </MenuItem>
+          </SubComponents>
+        </Menu>
+        <Menu class="javax.swing.JMenu" name="studenMenu">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="&#x62f;&#x627;&#x646;&#x634;&#x62c;&#x648;"/>
+          </Properties>
+          <SubComponents>
+            <MenuItem class="javax.swing.JMenuItem" name="stdEditMenuItem">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="&#x62b;&#x628;&#x62a; &#x648; &#x648;&#x6cc;&#x631;&#x627;&#x6cc;&#x634;"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="stdEditMenuItemActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="stdViewMenuItem">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="&#x645;&#x634;&#x627;&#x647;&#x62f;&#x647;"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="stdViewMenuItemActionPerformed"/>
+              </Events>
+            </MenuItem>
+          </SubComponents>
+        </Menu>
         <Menu class="javax.swing.JMenu" name="jMenu5">
           <Properties>
             <Property name="mnemonic" type="int" value="67"/>
@@ -162,38 +223,6 @@
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="attendanceMenuItemActionPerformed"/>
               </Events>
-            </MenuItem>
-          </SubComponents>
-        </Menu>
-        <Menu class="javax.swing.JMenu" name="jMenu8">
-          <Properties>
-            <Property name="mnemonic" type="int" value="73"/>
-            <Property name="text" type="java.lang.String" value="&#x6a9;&#x627;&#x631;&#x622;&#x645;&#x648;&#x632;"/>
-          </Properties>
-          <SubComponents>
-            <MenuItem class="javax.swing.JMenuItem" name="internManagMenuItem">
-              <Properties>
-                <Property name="mnemonic" type="int" value="110"/>
-                <Property name="text" type="java.lang.String" value="&#x645;&#x62f;&#x6cc;&#x631;&#x6cc;&#x62a; &#x6a9;&#x627;&#x631;&#x622;&#x645;&#x648;&#x632;&#x627;&#x646;"/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="internManagMenuItemActionPerformed"/>
-              </Events>
-              <AuxValues>
-                <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="internManagMenuItem.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);"/>
-              </AuxValues>
-            </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="internApplicationMenuItem">
-              <Properties>
-                <Property name="mnemonic" type="int" value="99"/>
-                <Property name="text" type="java.lang.String" value="&#x641;&#x648;&#x631;&#x645; &#x62f;&#x631;&#x62e;&#x648;&#x627;&#x633;&#x62a;"/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="internApplicationMenuItemActionPerformed"/>
-              </Events>
-              <AuxValues>
-                <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="internApplicationMenuItem.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);"/>
-              </AuxValues>
             </MenuItem>
           </SubComponents>
         </Menu>
@@ -264,6 +293,9 @@
                 <Property name="mnemonic" type="int" value="84"/>
                 <Property name="text" type="java.lang.String" value="Transaction Report Form"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="transactionReportMenuItemActionPerformed"/>
+              </Events>
             </MenuItem>
             <MenuItem class="javax.swing.JPopupMenu$Separator" name="jSeparator2">
             </MenuItem>

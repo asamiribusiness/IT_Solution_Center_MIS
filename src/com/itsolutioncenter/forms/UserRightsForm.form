@@ -367,12 +367,13 @@
             <Component class="javax.swing.JComboBox" name="cmbUserType">
               <Properties>
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-                  <StringArray count="5">
+                  <StringArray count="6">
                     <StringItem index="0" value="-- User Type --"/>
                     <StringItem index="1" value="Admin"/>
                     <StringItem index="2" value="Manager"/>
                     <StringItem index="3" value="Employee"/>
                     <StringItem index="4" value="Intern"/>
+                    <StringItem index="5" value="Instructor"/>
                   </StringArray>
                 </Property>
               </Properties>

@@ -6,8 +6,10 @@ import com.itsolutioncenter.model.User;
 import com.itsolutioncenter.service.CourseService;
 import com.itsolutioncenter.util.Formatter;
 import com.itsolutioncenter.util.Validator;
-import com.toedter.calendar.JCalendar;
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -41,6 +43,7 @@ private boolean insertion;
 private String query,courseCode,courseName,description,schedule,status,category,startDate,endDate,userType;
 
     public CourseManagementForm(User currentUser, Permission permissionService) {
+      // setTitle("\u202Bد زده کوونکو فورم");
         this.currentUser = currentUser;
         this.permissionService = permissionService;
         initComponents();
@@ -51,14 +54,29 @@ private String query,courseCode,courseName,description,schedule,status,category,
         {
             pnlOperation.setVisible(false);
         }
+       setupRefreshShortcut();
     }
+       private void setupRefreshShortcut() {
+        JRootPane rootPane = this.getRootPane();
+//        Action refreshAction = new AbstractAction() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                     btnRefreshActionPerformed(e);   }
+//        };
+//        rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+//            .put(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0), "refreshCourses");
+//        rootPane.getActionMap().put("refreshCourses", refreshAction);
+//        // Update button to show shortcut
+//        btnRefresh.setMnemonic(KeyEvent.VK_R); 
+        setupInputMapShortcuts();
+    }
+ 
     private void initCompnt()
     {
         tablePopupMenu.add("Edit").addActionListener(e ->loadSelectedRowToForm());
         tablePopupMenu.add("Delete").addActionListener(e ->{ deleteCourse();});
         tablePopupMenu.add("Refresh").addActionListener(e ->loadCourses());
         tablePopupMenu.add("Active Courses").addActionListener(e ->activeCourses());
-      
         tblCourses.addMouseListener(new MouseAdapter(){
         @Override
     public void mouseClicked(MouseEvent e)
@@ -84,8 +102,6 @@ private void loadCourses()
        "courses.instructor_id = users.user_id order by course_id";
        tableModel=db.getTableModel(query,tblCourses);
        tblCourses.setModel(tableModel);     
-       
-       KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F5, 0);
     }
 private void loadInstructors ()
 {
@@ -149,12 +165,6 @@ private void loadSelectedRowToForm() {
     private void addCourses() 
     {
         if(!validationControls()) return;
-        if(!insertion)
-        {
-            JOptionPane.showMessageDialog(this, "Data Existed & Can't Inserted Again!");
-            clearControls();
-            insertion=true;
-        }
         courseCode=txtCourseCode.getText();
         courseName=txtCourseName.getText();
         description=txtDescription.getText();
@@ -182,7 +192,7 @@ private void loadSelectedRowToForm() {
         }
         if(permissionService.canDelete())
         {
-             courseID = (int) tblCourses.getValueAt(row, 0);
+        courseID = (int) tblCourses.getValueAt(row, 0);
         courseName = (String)tblCourses.getValueAt(row, 1);
         int confirm = JOptionPane.showConfirmDialog(this,
             "Are you sure you want to delete Course: " + courseName + "?",
@@ -213,14 +223,15 @@ private void loadSelectedRowToForm() {
         try{
             List<Map<String , Object>> ins= db.select("users", "role=? AND full_name=?","Instructor",instructor);
             for(Map<String,Object>tutor:ins){
-                instructor_ID=Integer.parseInt(tutor.get("user_id").toString());
+            instructor_ID=Integer.parseInt(tutor.get("user_id").toString());
             }
         }catch(SQLException e){e.getMessage();}
         SDate=txtStartDate.getDate();
         EDate=txtEndDate.getDate();
         schedule=txtSchedule.getText();
         status=cmbStatus.getSelectedItem().toString();
-        row = service.updateCourse(courseID,courseCode, courseName, description, durration, fee, category, instructor_ID, SDate, EDate, schedule, status);
+        row = service.updateCourse(courseID,courseCode, courseName, description, durration, fee, 
+                category, instructor_ID, SDate, EDate, schedule, status);
         if(row>0)
         {
             JOptionPane.showMessageDialog(this, "Course Data Updated Succussfully");
@@ -259,8 +270,7 @@ private void loadSelectedRowToForm() {
             //tblCourses.setModel(new MapTableModel(data));
 //        query="select * from courses where status IN ('ongoing', 'upcoming') ORDER BY start_date";
 //        tableModel=db.getTableModel(query,tblCourses);
-//        tblCourses.setModel(tableModel);
-         
+//        tblCourses.setModel(tableModel);   
     }
     private boolean validationControls()
     {
@@ -423,6 +433,150 @@ private void loadSelectedRowToForm() {
             "Access Denied",
             JOptionPane.WARNING_MESSAGE);
     }
+        private void setupInputMapShortcuts() {
+        // Get the root pane's input/action maps
+        InputMap inputMap = this.getRootPane().getInputMap(
+            JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ActionMap actionMap = this.getRootPane().getActionMap();
+       
+        // ====== F5 - Refresh ======
+        KeyStroke f5Key = KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0);
+        Action refreshAction = new AbstractAction("refresh") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                btnRefreshActionPerformed(e);
+            }
+        };
+        inputMap.put(f5Key, "refreshAction");
+        actionMap.put("refreshAction", refreshAction);
+       // Update button to show shortcut
+        btnRefresh.setMnemonic(KeyEvent.VK_R); 
+        
+        // ====== Insert or Ctrl+N - Add New Course ======
+        KeyStroke insertKey = KeyStroke.getKeyStroke(KeyEvent.VK_INSERT, 0);
+        KeyStroke ctrlN = KeyStroke.getKeyStroke(KeyEvent.VK_N,
+            InputEvent.CTRL_DOWN_MASK);
+        Action insertAction = new AbstractAction("Insert") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                btnInsertActionPerformed(e);
+            } };
+        inputMap.put(insertKey, "InsertAction");
+        inputMap.put(ctrlN, "InsertAction");
+        actionMap.put("InsertAction", insertAction);
+       btnInsert.setMnemonic(KeyEvent.VK_N); 
+       
+        // ====== F2 or Ctrl+E - Update Course ======
+        KeyStroke f2Key = KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0);
+        KeyStroke ctrlU = KeyStroke.getKeyStroke(KeyEvent.VK_U,
+            InputEvent.CTRL_DOWN_MASK);
+        Action updateAction = new AbstractAction("Update") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                btnUpdateActionPerformed(e);
+            }  };
+        inputMap.put(f2Key, "updateAction");
+        inputMap.put(ctrlU, "updateAction");
+        actionMap.put("updateAction", updateAction);
+        btnUpdate.setMnemonic(KeyEvent.VK_U);
+        
+        // ====== Delete or Ctrl+D - Delete Student ======
+        KeyStroke deleteKey = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0);
+        KeyStroke ctrlD = KeyStroke.getKeyStroke(KeyEvent.VK_D,
+            InputEvent.CTRL_DOWN_MASK);
+        Action deleteAction = new AbstractAction("Delete") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                btnDeleteActionPerformed(e);
+            }  };
+        inputMap.put(deleteKey, "deleteAction");
+        inputMap.put(ctrlD, "deleteAction");
+        actionMap.put("deleteAction", deleteAction);
+        btnDelete.setMnemonic(KeyEvent.VK_D);
+        
+        // ====== Ctrl+L - Save ======
+        KeyStroke ctrlL = KeyStroke.getKeyStroke(KeyEvent.VK_L,
+            InputEvent.CTRL_DOWN_MASK);
+        Action clearAction = new AbstractAction("Clear") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                btnClearActionPerformed(e);
+            }
+        };
+        inputMap.put(ctrlL, "clearAction");
+        actionMap.put("clearAction", clearAction);
+       btnClear.setMnemonic(KeyEvent.VK_L);
+        // ====== Escape - Cancel/Close ======
+        KeyStroke escapeKey = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
+        Action escapeAction = new AbstractAction("escape") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int confirm = JOptionPane.showConfirmDialog(
+                    CourseManagementForm.this,
+                    "Are you sure you want to close?",
+                    "Confirm Exit",
+                    JOptionPane.YES_NO_OPTION);
+               
+                if (confirm == JOptionPane.YES_OPTION) {
+                    dispose();
+                }
+            }
+        };
+        inputMap.put(escapeKey, "escapeAction");
+        actionMap.put("escapeAction", escapeAction);
+       
+        // ====== Ctrl+F - Filter Active Courses ======
+        KeyStroke ctrlA = KeyStroke.getKeyStroke(KeyEvent.VK_A,
+            InputEvent.CTRL_DOWN_MASK);
+        Action filterAction = new AbstractAction("filterCourse") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                btnActiveCoursesActionPerformed(e);
+            }
+        };
+        inputMap.put(ctrlA, "filterAction");
+        actionMap.put("filterAction", filterAction);
+       btnActiveCourses.setMnemonic(KeyEvent.VK_A);
+       
+       // ====== Ctrl+F - Export CVS Reports ======
+        KeyStroke ctrlF = KeyStroke.getKeyStroke(KeyEvent.VK_P,
+            InputEvent.CTRL_DOWN_MASK);
+        Action exportCVSAction = new AbstractAction("Export CVS") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                btnCSVActionPerformed(e);
+            }
+        };
+        inputMap.put(ctrlF, "exportCVSAction");
+        actionMap.put("exportCVSAction", exportCVSAction);
+       btnCSV.setMnemonic(KeyEvent.VK_P);
+       
+        // ====== F5 - Refresh ======
+        KeyStroke f3Key = KeyStroke.getKeyStroke(KeyEvent.VK_F3, 0);
+        Action searchAction = new AbstractAction("refresh") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                btnSearchActionPerformed(e);
+            }
+        };
+        inputMap.put(f3Key, "searchAction");
+        actionMap.put("searchAction", searchAction);
+       // Update button to show shortcut
+        btnSearch.setMnemonic(KeyEvent.VK_H); 
+        
+        // Update button tooltips to show shortcuts
+        updateButtonTooltips();
+        }
+        private void updateButtonTooltips() {
+        btnRefresh.setToolTipText("<html>Refresh data<br><b>Shortcut: F5 or Ctrl+R</b></html>");
+        btnInsert.setToolTipText("<html>Add new course<br><b>Shortcut: Insert or Ctrl+N</b></html>");
+        btnUpdate.setToolTipText("<html>Edit selected course<br><b>Shortcut: F2 or Ctrl+U</b></html>");
+        btnDelete.setToolTipText("<html>Delete selected course<br><b>Shortcut: Delete or Ctrl+D</b></html>");
+        btnClear.setToolTipText("<html>Clear form controls<br><b>Shortcut: Ctrl+L</b></html>");
+        btnActiveCourses.setToolTipText("<html>Get active course<br>Shortcut: Ctrl+A</br></html>");
+        btnCSV.setToolTipText("<html>Export CVS report<br>Shortcut: Ctrl+p</br></html>"); 
+        btnSearch.setToolTipText("<html>Search course data<br>Shortcut: Ctrl+H</br></html>");
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -461,11 +615,11 @@ private void loadSelectedRowToForm() {
         btnUpdate = new javax.swing.JButton();
         btnSearch = new javax.swing.JButton();
         txtSearch = new javax.swing.JTextField();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        btnClear = new javax.swing.JButton();
+        btnActiveCourses = new javax.swing.JButton();
         txtStartDate = new com.toedter.calendar.JDateChooser();
         txtEndDate = new com.toedter.calendar.JDateChooser();
-        jButton3 = new javax.swing.JButton();
+        btnCSV = new javax.swing.JButton();
         btnRefresh = new javax.swing.JButton();
 
         setClosable(true);
@@ -643,12 +797,17 @@ private void loadSelectedRowToForm() {
             }
         });
 
-        jButton1.setText("Clear Controls");
-
-        jButton2.setText("Active Courses");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        btnClear.setText("Clear Controls");
+        btnClear.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                btnClearActionPerformed(evt);
+            }
+        });
+
+        btnActiveCourses.setText("Active Courses");
+        btnActiveCourses.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnActiveCoursesActionPerformed(evt);
             }
         });
 
@@ -656,10 +815,10 @@ private void loadSelectedRowToForm() {
 
         txtEndDate.setDateFormatString("yyyy-MM-dd");
 
-        jButton3.setText("Export CSV");
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
+        btnCSV.setText("Export CSV");
+        btnCSV.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
+                btnCSVActionPerformed(evt);
             }
         });
 
@@ -710,8 +869,8 @@ private void loadSelectedRowToForm() {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(btnDelete)
                                 .addGap(28, 28, 28)
-                                .addComponent(btnUpdate)
-                                .addGap(0, 0, Short.MAX_VALUE)))
+                                .addComponent(btnUpdate)))
+                        .addGap(0, 0, Short.MAX_VALUE)
                         .addGroup(pnlOperationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(pnlOperationLayout.createSequentialGroup()
                                 .addGroup(pnlOperationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
@@ -736,17 +895,17 @@ private void loadSelectedRowToForm() {
                                         .addGap(190, 190, 190)
                                         .addComponent(btnRefresh)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(jButton3)
+                                        .addComponent(btnCSV)
                                         .addGap(30, 30, 30)))
                                 .addGroup(pnlOperationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jButton2)
+                                    .addComponent(btnActiveCourses)
                                     .addGroup(pnlOperationLayout.createSequentialGroup()
                                         .addComponent(jLabel12)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                         .addComponent(cmbStatus, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                             .addGroup(pnlOperationLayout.createSequentialGroup()
                                 .addGap(18, 18, 18)
-                                .addComponent(jButton1)
+                                .addComponent(btnClear)
                                 .addGap(235, 235, 235)
                                 .addComponent(btnSearch)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -811,9 +970,9 @@ private void loadSelectedRowToForm() {
                             .addComponent(btnUpdate)
                             .addComponent(btnSearch)
                             .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButton1)
-                            .addComponent(jButton2)
-                            .addComponent(jButton3))
+                            .addComponent(btnClear)
+                            .addComponent(btnActiveCourses)
+                            .addComponent(btnCSV))
                         .addContainerGap())
                     .addGroup(pnlOperationLayout.createSequentialGroup()
                         .addGap(18, 18, 18)
@@ -905,32 +1064,34 @@ private void loadSelectedRowToForm() {
         deleteCourse();
     }//GEN-LAST:event_btnDeleteActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+    private void btnActiveCoursesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActiveCoursesActionPerformed
      
         activeCourses();
               
-    }//GEN-LAST:event_jButton2ActionPerformed
+    }//GEN-LAST:event_btnActiveCoursesActionPerformed
 
     private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
         updateData();
     }//GEN-LAST:event_btnUpdateActionPerformed
 
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+    private void btnCSVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCSVActionPerformed
         //exportData();
         exportTableToCSV();
-    }//GEN-LAST:event_jButton3ActionPerformed
+    }//GEN-LAST:event_btnCSVActionPerformed
 
     private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshActionPerformed
-        loadCourses();
-        btnRefresh.setMnemonic('R');
-        
-       // setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F5, 0));
-                
-        
+        loadCourses();               
     }//GEN-LAST:event_btnRefreshActionPerformed
+
+    private void btnClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearActionPerformed
+        clearControls();
+    }//GEN-LAST:event_btnClearActionPerformed
       
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnActiveCourses;
+    private javax.swing.JButton btnCSV;
+    private javax.swing.JButton btnClear;
     private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnInsert;
     private javax.swing.JButton btnRefresh;
@@ -939,9 +1100,6 @@ private void loadSelectedRowToForm() {
     private javax.swing.JComboBox<String> cmbCategory;
     private javax.swing.JComboBox<String> cmbInstructor;
     private javax.swing.JComboBox<String> cmbStatus;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;

@@ -32,7 +32,7 @@ private DefaultTableModel model=new DefaultTableModel();
     public ProjectManagementForm() {
         initComponents();
         loadProjectList();
-        updateStats();
+      //  updateStats();
         loadInitialData();
     }
     private void loadProjectList()
@@ -41,7 +41,7 @@ private DefaultTableModel model=new DefaultTableModel();
         "clients.client_name, projects.service_type, projects.start_date," +
         "projects.`status`, projects.budget, 1+2 as progress FROM clients " +
         "INNER JOIN projects ON projects.client_id = clients.client_id";
-        model=dbManager.getTableModel(query, tblProjectList);
+        model=DatabaseManager.getTableModel(query, tblProjectList);
         tblProjectList.setModel(model);
     }
     private void filterByStatus(String status) {
@@ -131,7 +131,7 @@ private DefaultTableModel model=new DefaultTableModel();
             JOptionPane.showMessageDialog(this, "Project saved successfully!");
            // clearForm();
             loadProjectList();
-            updateStats();
+//            updateStats();
         } else {
             JOptionPane.showMessageDialog(this, "Error saving project!");
         }
@@ -151,7 +151,7 @@ private DefaultTableModel model=new DefaultTableModel();
             JOptionPane.showMessageDialog(this, "Project updated successfully!");
             //clearForm();
             loadInitialData();
-            updateStats();
+  //          updateStats();
         } else {
             JOptionPane.showMessageDialog(this, "Error updating project!");
         }
@@ -174,7 +174,7 @@ private DefaultTableModel model=new DefaultTableModel();
                 JOptionPane.showMessageDialog(this, "Project deleted successfully!");
                 //clearForm();
                 loadProjectList();
-                updateStats();
+             //   updateStats();
             } else {
                 JOptionPane.showMessageDialog(this, "Error deleting project!");
             }

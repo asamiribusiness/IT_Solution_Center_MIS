@@ -31,10 +31,9 @@ private String FullName,Role;
         txtUserName = new javax.swing.JTextField();
         btnLogin = new javax.swing.JButton();
         btnCancel = new javax.swing.JButton();
-        chkShowPassword = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("فـــــــــــــارم ورود");
+        setTitle("\u202Bفارم ورود");
         setBackground(new java.awt.Color(204, 255, 255));
         setForeground(javax.swing.UIManager.getDefaults().getColor("Actions.Blue"));
         setResizable(false);
@@ -81,13 +80,6 @@ private String FullName,Role;
             }
         });
 
-        chkShowPassword.setText("Show Password");
-        chkShowPassword.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                chkShowPasswordActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -109,7 +101,6 @@ private String FullName,Role;
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel3)
                                     .addComponent(jLabel4)))
-                            .addComponent(chkShowPassword)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(btnLogin)
                                 .addGap(18, 18, 18)
@@ -138,13 +129,11 @@ private String FullName,Role;
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel4))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(chkShowPassword)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(26, 26, 26)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btnLogin)
                     .addComponent(btnCancel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 81, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 87, Short.MAX_VALUE)
                 .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(5, 5, 5)
                 .addComponent(jLabel2)
@@ -161,10 +150,10 @@ private String FullName,Role;
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
        username=String.valueOf(txtUserName.getText().trim());
        password=new String(txtPassword.getPassword());
-//       if(!Validator.validateRequired(txtUserName, "User Name"))
-//       {
-//           return;
-//       }
+       if(!Validator.validateRequired(txtUserName, "User Name"))
+       {
+           return;
+       }
       if(!Validator.validateRequired(txtPassword, "Password"))
       {
          return;
@@ -214,18 +203,7 @@ private String FullName,Role;
         txtPassword.setBorder(UIManager.getBorder("TextField.border"));
         txtPassword.setForeground(Color.BLACK);
     }//GEN-LAST:event_txtPasswordKeyPressed
-
-    private void chkShowPasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkShowPasswordActionPerformed
-     showPassword();
-    }//GEN-LAST:event_chkShowPasswordActionPerformed
- private void showPassword()
- {
-         if (chkShowPassword.isSelected())
-         {txtPassword.setEchoChar((char) 0);
-         }
-    else {txtPassword.setEchoChar('•');
-}
- }
+ 
     /**
      * @param args the command line arguments
      */
@@ -267,7 +245,6 @@ private String FullName,Role;
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCancel;
     private javax.swing.JButton btnLogin;
-    private javax.swing.JCheckBox chkShowPassword;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

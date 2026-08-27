@@ -6,8 +6,11 @@ import com.itsolutioncenter.model.User;
 import com.itsolutioncenter.service.UserService;
 import com.itsolutioncenter.util.Validator;
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.JOptionPane;
+import javax.swing.Timer;
 import javax.swing.UIManager;
 /**
  *
@@ -19,6 +22,8 @@ private int userID;
 private DatabaseManager dbManager=DatabaseManager.getInstance();
 private String currentPassword,newPassword,confirmPassword;
 private UserService userservice=new UserService();
+ private Timer timer;
+    private int progressValue = 0;
     /**
      * Creates new form frmChangePassword
      * @param user
@@ -54,6 +59,7 @@ private UserService userservice=new UserService();
         btnCancel = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
         lblUser = new javax.swing.JLabel();
+        progressBar = new javax.swing.JProgressBar();
 
         setClosable(true);
         setIconifiable(true);
@@ -105,6 +111,9 @@ private UserService userservice=new UserService();
 
         lblUser.setText("[user]");
 
+        progressBar.setForeground(new java.awt.Color(102, 204, 255));
+        progressBar.setStringPainted(true);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -130,7 +139,10 @@ private UserService userservice=new UserService();
                         .addGap(70, 70, 70)
                         .addComponent(btnChangePassword)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnCancel)))
+                        .addComponent(btnCancel))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(96, 96, 96)
+                        .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(113, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -156,7 +168,9 @@ private UserService userservice=new UserService();
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnChangePassword)
                     .addComponent(btnCancel))
-                .addContainerGap(70, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(38, Short.MAX_VALUE))
         );
 
         pack();
@@ -165,7 +179,8 @@ private UserService userservice=new UserService();
        clearControls();
     }//GEN-LAST:event_btnCancelActionPerformed
     private void btnChangePasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnChangePasswordActionPerformed
-           changePasswords();
+        simulateProcess();  
+        changePasswords();
     }//GEN-LAST:event_btnChangePasswordActionPerformed
     private void txtCurrentPassKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtCurrentPassKeyPressed
         txtCurrentPass.setBackground(Color.WHITE);
@@ -242,7 +257,34 @@ private UserService userservice=new UserService();
          }
          clearControls(); 
     }
-
+    private void simulateProcess() {
+        progressValue = 0;
+        progressBar.setValue(0);
+        progressBar.setString("Processing...");
+       
+        // Disable buttons during process
+        setButtonsEnabled(false);
+       
+        timer = new Timer(10, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                progressValue++;
+                progressBar.setValue(progressValue);
+               
+                if (progressValue >= 100) {
+                    ((Timer)e.getSource()).stop();
+                    progressBar.setString("Password Updated!");
+                    setButtonsEnabled(true);
+                }
+            }
+        });
+        timer.start();
+    }
+    private void setButtonsEnabled(boolean enabled) {
+        btnChangePassword.setEnabled(enabled);
+        btnCancel.setEnabled(enabled);
+       
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCancel;
     private javax.swing.JButton btnChangePassword;
@@ -251,6 +293,7 @@ private UserService userservice=new UserService();
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel lblUser;
+    private javax.swing.JProgressBar progressBar;
     private javax.swing.JPasswordField txtConfirmedPass;
     private javax.swing.JPasswordField txtCurrentPass;
     private javax.swing.JPasswordField txtNewPass;

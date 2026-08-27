@@ -61,16 +61,16 @@ public class UserRightsForm extends javax.swing.JInternalFrame {
     private void loadUserNames ()
     {
     query="Select username from users order by user_id";
-    rs=dbManager.executeSimpleQuery(query);
-    try
-    {
-      while(rs.next())
-    {
-       cmbUsername.addItem(rs.getString("username"));
-    } 
-    }catch(SQLException e)
-    {
-        JOptionPane.showMessageDialog(null, "Users Data Couldn't Load");
+//    rs=DatabaseManager.executeSimpleQuery(query);
+cmbUsername.removeAllItems();
+cmbUsername.addItem("-- Username --");
+List<Map<String,Object>>usernames=dbManager.getAllUsers1();
+for(Map<String,Object>users:usernames){
+    cmbUsername.addItem(users.get("username").toString());
+}
+//  while(rs.next())
+{
+        //cmbUsername.addItem(rs.getString("username"));
     }
     }
      /**
@@ -219,7 +219,7 @@ public class UserRightsForm extends javax.swing.JInternalFrame {
 
         jLabel3.setText("User Type:");
 
-        cmbUserType.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "-- User Type --", "Admin", "Manager", "Employee", "Intern" }));
+        cmbUserType.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "-- User Type --", "Admin", "Manager", "Employee", "Intern", "Instructor" }));
 
         rdbActive.setText("Active");
 

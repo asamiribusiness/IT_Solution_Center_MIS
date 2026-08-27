@@ -50,6 +50,7 @@ public class Main_Form extends javax.swing.JFrame {
 
         jMenuItem5 = new javax.swing.JMenuItem();
         jMenuItem7 = new javax.swing.JMenuItem();
+        jMenu3 = new javax.swing.JMenu();
         MainDesktop = new javax.swing.JDesktopPane();
         menuBar = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
@@ -61,13 +62,16 @@ public class Main_Form extends javax.swing.JFrame {
         changePassMenuItem = new javax.swing.JMenuItem();
         userRightsMenuItem = new javax.swing.JMenuItem();
         userMangMenuItem = new javax.swing.JMenuItem();
+        jMenu8 = new javax.swing.JMenu();
+        internManagMenuItem = new javax.swing.JMenuItem();
+        internApplicationMenuItem = new javax.swing.JMenuItem();
+        studenMenu = new javax.swing.JMenu();
+        stdEditMenuItem = new javax.swing.JMenuItem();
+        stdViewMenuItem = new javax.swing.JMenuItem();
         jMenu5 = new javax.swing.JMenu();
         courseManagMenuItem = new javax.swing.JMenuItem();
         enrollmentFormMenuItemt = new javax.swing.JMenuItem();
         attendanceMenuItem = new javax.swing.JMenuItem();
-        jMenu8 = new javax.swing.JMenu();
-        internManagMenuItem = new javax.swing.JMenuItem();
-        internApplicationMenuItem = new javax.swing.JMenuItem();
         jMenu6 = new javax.swing.JMenu();
         clientManagMenuItem = new javax.swing.JMenuItem();
         jMenu10 = new javax.swing.JMenu();
@@ -96,6 +100,8 @@ public class Main_Form extends javax.swing.JFrame {
         jMenuItem5.setText("jMenuItem5");
 
         jMenuItem7.setText("jMenuItem7");
+
+        jMenu3.setText("jMenu3");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setPreferredSize(new java.awt.Dimension(1280, 640));
@@ -192,6 +198,46 @@ public class Main_Form extends javax.swing.JFrame {
 
         menuBar.add(userMenu);
 
+        jMenu8.setMnemonic('I');
+        jMenu8.setText("کارآموز");
+
+        internManagMenuItem.setMnemonic('n');
+        internManagMenuItem.setText("مدیریت کارآموزان");
+        internManagMenuItem.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
+        jMenu8.add(internManagMenuItem);
+
+        internApplicationMenuItem.setMnemonic('c');
+        internApplicationMenuItem.setText("فورم درخواست");
+        internApplicationMenuItem.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
+        internApplicationMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                internApplicationMenuItemActionPerformed(evt);
+            }
+        });
+        jMenu8.add(internApplicationMenuItem);
+
+        menuBar.add(jMenu8);
+
+        studenMenu.setText("دانشجو");
+
+        stdEditMenuItem.setText("ثبت و ویرایش");
+        stdEditMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                stdEditMenuItemActionPerformed(evt);
+            }
+        });
+        studenMenu.add(stdEditMenuItem);
+
+        stdViewMenuItem.setText("مشاهده");
+        stdViewMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                stdViewMenuItemActionPerformed(evt);
+            }
+        });
+        studenMenu.add(stdViewMenuItem);
+
+        menuBar.add(studenMenu);
+
         jMenu5.setMnemonic('C');
         jMenu5.setText("کورس");
 
@@ -224,31 +270,6 @@ public class Main_Form extends javax.swing.JFrame {
         jMenu5.add(attendanceMenuItem);
 
         menuBar.add(jMenu5);
-
-        jMenu8.setMnemonic('I');
-        jMenu8.setText("کارآموز");
-
-        internManagMenuItem.setMnemonic('n');
-        internManagMenuItem.setText("مدیریت کارآموزان");
-        internManagMenuItem.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
-        internManagMenuItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                internManagMenuItemActionPerformed(evt);
-            }
-        });
-        jMenu8.add(internManagMenuItem);
-
-        internApplicationMenuItem.setMnemonic('c');
-        internApplicationMenuItem.setText("فورم درخواست");
-        internApplicationMenuItem.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
-        internApplicationMenuItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                internApplicationMenuItemActionPerformed(evt);
-            }
-        });
-        jMenu8.add(internApplicationMenuItem);
-
-        menuBar.add(jMenu8);
 
         jMenu6.setMnemonic('n');
         jMenu6.setText("مشتری");
@@ -303,6 +324,11 @@ public class Main_Form extends javax.swing.JFrame {
 
         transactionReportMenuItem.setMnemonic('T');
         transactionReportMenuItem.setText("Transaction Report Form");
+        transactionReportMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                transactionReportMenuItemActionPerformed(evt);
+            }
+        });
         financeMenu.add(transactionReportMenuItem);
         financeMenu.add(jSeparator2);
 
@@ -573,9 +599,19 @@ public class Main_Form extends javax.swing.JFrame {
         eform.setVisible(true);
     }//GEN-LAST:event_expenseMenuItemActionPerformed
 
-    private void internManagMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_internManagMenuItemActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_internManagMenuItemActionPerformed
+    private void transactionReportMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_transactionReportMenuItemActionPerformed
+        
+    }//GEN-LAST:event_transactionReportMenuItemActionPerformed
+
+    private void stdEditMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stdEditMenuItemActionPerformed
+        StudentManagementForm sForm=new StudentManagementForm();
+        MainDesktop.add(sForm);
+        sForm.setVisible(true); 
+    }//GEN-LAST:event_stdEditMenuItemActionPerformed
+
+    private void stdViewMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stdViewMenuItemActionPerformed
+        
+    }//GEN-LAST:event_stdViewMenuItemActionPerformed
     private void showAccessDenied(String module) {
         JOptionPane.showMessageDialog(this,
             "Access Denied!\n\nYou don't have permission to access " + module + ".\n" +
@@ -666,6 +702,7 @@ private void showSimpleHelp() {
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu10;
     private javax.swing.JMenu jMenu2;
+    private javax.swing.JMenu jMenu3;
     private javax.swing.JMenu jMenu5;
     private javax.swing.JMenu jMenu6;
     private javax.swing.JMenu jMenu8;
@@ -682,6 +719,9 @@ private void showSimpleHelp() {
     private javax.swing.JMenuItem reportGenMenuItem;
     private javax.swing.JMenu reportsMenu;
     private javax.swing.JMenuItem shortcutMenuItem;
+    private javax.swing.JMenuItem stdEditMenuItem;
+    private javax.swing.JMenuItem stdViewMenuItem;
+    private javax.swing.JMenu studenMenu;
     private javax.swing.JMenuItem supportMenuItem;
     private javax.swing.JMenuItem supportReportMenuItem;
     private javax.swing.JMenuItem systemInfoMenuItem;

@@ -4,7 +4,7 @@
   <Properties>
     <Property name="defaultCloseOperation" type="int" value="3"/>
     <Property name="title" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-      <Connection code="&quot;&#x641;&#x640;&#x640;&#x640;&#x640;&#x640;&#x640;&#x640;&#x640;&#x640;&#x640;&#x640;&#x640;&#x640;&#x627;&#x631;&#x645; &#x648;&#x631;&#x648;&#x62f;&quot;" type="code"/>
+      <Connection code="&quot;\u202B&#x641;&#x627;&#x631;&#x645; &#x648;&#x631;&#x648;&#x62f;&quot;" type="code"/>
     </Property>
     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
       <Color blue="ff" green="ff" red="cc" type="rgb"/>
@@ -54,8 +54,7 @@
                                   <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
-                          <Component id="chkShowPassword" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Group type="102" alignment="0" attributes="0">
+                          <Group type="102" attributes="0">
                               <Component id="btnLogin" min="-2" max="-2" attributes="0"/>
                               <EmptySpace type="separate" max="-2" attributes="0"/>
                               <Component id="btnCancel" min="-2" max="-2" attributes="0"/>
@@ -94,14 +93,12 @@
                   <Component id="txtPassword" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel4" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Component id="chkShowPassword" min="-2" max="-2" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="26" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="btnLogin" alignment="0" min="-2" max="-2" attributes="0"/>
                   <Component id="btnCancel" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace pref="81" max="32767" attributes="0"/>
+              <EmptySpace pref="87" max="32767" attributes="0"/>
               <Component id="jSeparator2" min="-2" max="-2" attributes="0"/>
               <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
               <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
@@ -183,14 +180,6 @@
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnCancelActionPerformed"/>
-      </Events>
-    </Component>
-    <Component class="javax.swing.JCheckBox" name="chkShowPassword">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Show Password"/>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="chkShowPasswordActionPerformed"/>
       </Events>
     </Component>
   </SubComponents>

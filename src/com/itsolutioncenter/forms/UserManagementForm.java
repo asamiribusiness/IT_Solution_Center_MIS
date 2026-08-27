@@ -74,13 +74,13 @@ private UserService userService=new UserService();
             userTable.setModel(tableModel); 
             txtSearch.setText("");
     }
-      /* private void insertData()
+       private void insertData()
     {
         if(!Validator.validateRequired(txtPassword, "Password"))
         {
             return;
         }
-         if(!Validator.isLengthValid(txtPassword.getText(), 5, 10))
+         if(!Validator.isLengthValid(String.valueOf(txtPassword.getPassword()), 5, 10))
          {
               JOptionPane.showMessageDialog(this, "Password must be at least 5 or maximum 10 characters",
                     "Error", JOptionPane.ERROR_MESSAGE);
@@ -137,115 +137,7 @@ private UserService userService=new UserService();
         {
             JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
         }
-    }*/
-    private void insertData() {
-    // 1. RUN VALIDATION FIRST (Must be on the Event Dispatch Thread)
-    if (!Validator.validateRequired(txtPassword, "Password")) {
-        return;
     }
-    if (!Validator.isLengthValid(txtPassword.getText(), 5, 10)) {
-        JOptionPane.showMessageDialog(this, "Password must be at least 5 or maximum 10 characters",
-                "Error", JOptionPane.ERROR_MESSAGE);
-        txtPassword.requestFocusInWindow();
-        txtPassword.setBackground(new Color(255, 230, 230));
-        txtPassword.setForeground(Color.red);
-        txtPassword.setBorder(BorderFactory.createLineBorder(Color.yellow, 2));
-        return;
-    }
-    if (!ValidateData()) return;
-
-    // Capture text fields variables on EDT before moving to background thread
-    final String username = txtUserName.getText();
-    final String password = new String(txtPassword.getPassword());
-    final String email = txtEmail.getText();
-    final String fullName = txtFullName.getText();
-    final String role = cmbUserType.getSelectedItem().toString();
-    final String phone = txtPhone.getText();
-    final String address = txtAddress.getText();
-    final java.util.Date hireDate = txtHireDate.getDate(); 
-    final double salary = Double.parseDouble(txtSalary.getText());
-
-    // Check duplicate validations before launching thread
-    if (dbManager.exists("users", "email = ?", email)) {
-        JOptionPane.showMessageDialog(this, "Email is already registered by another user",
-                "Error", JOptionPane.ERROR_MESSAGE);
-        txtEmail.requestFocusInWindow();
-        txtEmail.setBackground(new Color(255, 230, 230));
-        txtEmail.setForeground(Color.red);
-        txtEmail.setBorder(BorderFactory.createLineBorder(Color.yellow, 2));
-        return;
-    }
-    if (dbManager.exists("users", "username = ?", username)) {
-        JOptionPane.showMessageDialog(this, "Username is already registered by another user",
-                "Error", JOptionPane.ERROR_MESSAGE);
-        txtUserName.requestFocusInWindow();
-        txtUserName.setBackground(new Color(255, 230, 230));
-        txtUserName.setForeground(Color.red);
-        txtUserName.setBorder(BorderFactory.createLineBorder(Color.yellow, 2));
-        return;
-    }
-
-    // 2. CONCURRENCY CONTROL & SECURITY PROTECTION
-    btnInsert.setEnabled(false);        // Block user from double-clicking the button
-    txtPassword.setText("");            // Instantly clear plain text password from UI memory
-    progressBar.setValue(0);          // Reset the progress bar status
-
-    // 3. CREATE AND EXECUTE SWINGWORKER FOR BACKGROUND TASK
-    SwingWorker<Integer, Integer> worker = new SwingWorker<Integer, Integer>() {
-        
-        @Override
-        protected Integer doInBackground() throws Exception {
-            // Step A: Hashing (25% progress)
-            setProgress(25); 
-            String hashPass = BCrypt.hashpw(password, BCrypt.gensalt());
-            
-            // Step B: Simulating preparation step (50% progress)
-            setProgress(50);
-            Thread.sleep(250); // Small 250ms visual delay for smooth animation
-            
-            // Step C: Execute database write (75% progress)
-            setProgress(75);
-            int resultRow = userService.registerUser(username, hashPass, email, fullName, role, phone, address, hireDate, salary);
-            
-            // Step D: Task Finish (100% progress)
-            setProgress(100);
-            return resultRow;
-        }
-
-        @Override
-        protected void done() {
-            // This method automatically returns to the EDT thread when finished
-            try {
-                int insertedRow = get(); // Grab result from doInBackground
-                
-                if (insertedRow > 0) {
-                    JOptionPane.showMessageDialog(null, "Data Inserted Successfully");
-                    loadUsers();
-                    clear();
-                } else {
-                    JOptionPane.showMessageDialog(null, "Data Didn't Inserted!");
-                }
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
-            } finally {
-                // 4. CLEANUP INTERFACE RESTORATION
-                btnInsert.setEnabled(true);     // Unlock submission capability
-                progressBar.setValue(0);      // Reset bar back to zero state
-            }
-        }
-    };
-
-    // 5. LINK PROGRESS CHANGES TO PROGRESSBAR
-    worker.addPropertyChangeListener(evt -> {
-        if ("progress".equals(evt.getPropertyName())) {
-            progressBar.setValue((Integer) evt.getNewValue());
-        }
-    });
-
-    // 6. START THREAD EXECUTION
-    worker.execute();
-}
-
     private void deleteUser() {
         row = userTable.getSelectedRow();
         if (row == -1) {
@@ -345,7 +237,7 @@ private UserService userService=new UserService();
         {
             query="Select * from users";
             tableModel=dbManager.getTableModel(query,userTable);
-            userTable.setModel(tableModel);  
+            userTable.setModel(tableModel); 
         }catch(Exception e)
         {
             JOptionPane.showMessageDialog(null, e.getMessage());
