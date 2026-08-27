@@ -5,6 +5,8 @@ import com.itsolutioncenter.dao.DatabaseManager;
 import javax.swing.table.DefaultTableModel;
 import java.sql.*;
 import java.text.SimpleDateFormat;
+import java.util.List;
+import java.util.Map;
 import javax.swing.JOptionPane;
 
 /**
@@ -30,35 +32,50 @@ private ResultSet rs;
     }
     private void loadAttendance ()
     {
-        query="SELECT course_enrollments.enrollment_id, course_enrollments.student_name, attendance.status," +
-        " attendance.check_in_time, attendance.remarks, courses.course_name FROM attendance" +
-        " INNER JOIN course_enrollments ON course_enrollments.enrollment_id = attendance.enrollment_id"+
-        " INNER JOIN courses ON courses.course_id = course_enrollments.course_id";
-        model=dbManager.getTableModel(query, tblAttendance);
+        query="SELECT course_enrollments.enrollment_id," +
+   " students.full_name, attendance.`status`," +
+   " attendance.check_in_time, attendance.remarks, courses.course_name" +
+   " FROM attendance"+
+   " INNER JOIN course_enrollments ON course_enrollments.enrollment_id = attendance.enrollment_id" +
+   " INNER JOIN courses ON courses.course_id = course_enrollments.course_id" +
+   " INNER JOIN students ON students.student_id = course_enrollments.student_id";
+        model=DatabaseManager.getTableModel(query, tblAttendance);
         tblAttendance.setModel(model);
     }
-private void loadCourses() {
-    String query = "select course_code, course_name from courses";
-    try (ResultSet rs = dbManager.executeSimpleQuery(query)) {
-        while (rs.next()) {
-            cmbCourse.addItem(rs.getString("course_code"));
+    private void loadCourses()
+    {
+        cmbCourse.removeAllItems();
+        cmbCourse.addItem("-- Select Course --");
+        query="select course_code, course_name from courses";  
+        try{
+            List<Map<String,Object>>courseName=dbManager.select(query);
+            for(Map<String,Object>course:courseName){
+            cmbCourse.addItem(course.get("course_code").toString()); //+" - "+course.get("course_name");
         }
-    } catch (SQLException e) {
-        JOptionPane.showMessageDialog(this, "Failed to load courses: " + e.getMessage());
+//          
+//         rs=DatabaseManager.executeSimpleQuery(query);
+//         while(rs.next())
+//         {
+//             cmbCourse.addItem(rs.getString("course_code"));//+" - "+rs.getString("course_name"));
+//         }
+        }catch(SQLException e){JOptionPane.showMessageDialog(this, e.getMessage());}
+        
     }
-}
     private void loadSelectedCourseAttendance()
     {
         courseCode=cmbCourse.getSelectedItem().toString();
        //StringBuilder s=new StringBuilder(courseCode);
         
-        query="SELECT course_enrollments.enrollment_id,course_enrollments.student_name," +
-        "attendance.`status`,attendance.check_in_time,attendance.remarks,courses.course_name,attendance.attendance_date " +
-        "FROM  attendance INNER JOIN courses ON courses.course_id = attendance.course_id" +
-        " INNER JOIN course_enrollments ON course_enrollments.course_id = courses.course_id" +
+        query="SELECT course_enrollments.enrollment_id," +
+   " students.full_name, attendance.`status`," +
+   " attendance.check_in_time, attendance.remarks, courses.course_name" +
+   " FROM attendance"+
+   " INNER JOIN course_enrollments ON course_enrollments.enrollment_id = attendance.enrollment_id" +
+   " INNER JOIN courses ON courses.course_id = course_enrollments.course_id" +
+   " INNER JOIN students ON students.student_id = course_enrollments.student_id"+
         " AND course_enrollments.enrollment_id = attendance.enrollment_id"+
                 " where course_code='"+courseCode+"'";
-        model=dbManager.getTableModel(query, tblAttendance);
+        model=DatabaseManager.getTableModel(query, tblAttendance);
         tblAttendance.setModel(model);
     }
     private void applyStatus()
