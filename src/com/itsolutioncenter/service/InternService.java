@@ -5,6 +5,7 @@ import com.itsolutioncenter.util.DateUtil;
 import com.itsolutioncenter.util.Validator;
 import java.sql.SQLException;
 import java.util.*;
+import javax.swing.JOptionPane;
 
 public class InternService {
     private DatabaseManager db = DatabaseManager.getInstance();
@@ -36,7 +37,28 @@ public class InternService {
        
         return db.insert("intern_applications", application);
     }
-   
+   public int updateIntern(int internID,String applicant,String email,String phone,String university, String course,
+           String qualification, String path,String appliedFor,Date date,String status, Date interviewDate,String note,String skills)
+{
+        Map<String, Object> updateData = new HashMap<>();
+        updateData.put("application_id", internID);
+        updateData.put("applicant_name", applicant);
+        updateData.put("email", email);
+        updateData.put("phone",phone);
+        updateData.put("university",university);
+        updateData.put("course", course);
+        updateData.put("qualification", qualification);
+        updateData.put("resume_path",path);
+        updateData.put("applied_for", appliedFor);
+        updateData.put("application_date", date);
+        updateData.put("status",status);
+        updateData.put("interview_date", interviewDate);     
+        updateData.put("interview_notes",note);
+        updateData.put("skills", skills); 
+       int rows=db.update("intern_application", updateData, "application_id = ?", internID);
+
+       return rows;
+} 
     /**
      * Get all applications
      */

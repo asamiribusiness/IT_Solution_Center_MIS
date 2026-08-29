@@ -388,7 +388,7 @@ private UserService userService=new UserService();
             userTable.getColumnModel().getColumn(11).setMaxWidth(200);
         }
 
-        pnlOperation.setBackground(new java.awt.Color(0, 204, 204));
+        pnlOperation.setBackground(new java.awt.Color(102, 204, 255));
         pnlOperation.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "User Management Operation", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Arial Black", 1, 12))); // NOI18N
 
         txtUserName.addKeyListener(new java.awt.event.KeyAdapter() {
