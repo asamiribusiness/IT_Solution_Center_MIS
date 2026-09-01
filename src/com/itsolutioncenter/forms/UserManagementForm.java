@@ -25,7 +25,7 @@ private Date hireDate;
 private String[] userType;
 private int userID,row;
 private double salary;
-private boolean insertion,active=true;
+private boolean insertion=true,active=true;
 private Timestamp createdDate;
 private UserService userService=new UserService();
     public UserManagementForm(User user, Permission permissionService) {
@@ -230,6 +230,7 @@ private UserService userService=new UserService();
     txtSalary.setText("");
     txtHireDate.setDate(null);
     cmbUserType.setSelectedIndex(0);
+    insertion=true;
 }
     private void loadUsers() 
     {
@@ -264,6 +265,7 @@ private UserService userService=new UserService();
         {
             JOptionPane.showMessageDialog(null, "Some Fields Are Null");
         }
+        insertion=false;
     }
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents

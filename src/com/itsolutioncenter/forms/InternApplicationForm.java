@@ -6,13 +6,18 @@ import com.itsolutioncenter.util.Validator;
 import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.Timestamp;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.JOptionPane;
+import javax.swing.UIManager;
 import javax.swing.table.DefaultTableModel;
 /**
  *
@@ -23,10 +28,12 @@ private DatabaseManager dbManager=DatabaseManager.getInstance();
 private InternService internservice=new InternService();
 private ResultSet rs;
 private DefaultTableModel model=new DefaultTableModel();
-private String query,name,email,phone,university,course,qualification,path,applied_for,status,note,skills;
-private Date date,interviewDate;
+private String query,name,email,phone,university,course,qualification,path,
+        applied_for,status,note,skills;
+private Date date;
+private LocalDateTime interviewDate;
 private int id,row;
-private boolean insertion;
+private boolean insertion=true;
     /**
      * Creates new form InternApplicationForm
      */
@@ -44,7 +51,8 @@ private boolean insertion;
     private void searchData() {
         String searchText=txtSearch.getText().trim();
         if (searchText.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Please enter search criteria: Course ID, Course Code or Course Name");
+            JOptionPane.showMessageDialog(null, "Please enter search criteria: Course ID,"
+                    + " Course Code or Course Name");
             return;
         }
         boolean isNumeric = searchText.matches("\\d+");  
@@ -54,7 +62,8 @@ private boolean insertion;
                 query = "select * from intern_applications where application_id = '"+id+"'";
             } else {
                 // Search by username OR full name only (non-numeric)
-                query= "select * from intern_applications where applicant_name LIKE '"+searchText+"' OR phone LIKE '"+searchText+"'";
+                query= "select * from intern_applications where applicant_name LIKE '"
+                        +searchText+"' OR phone LIKE '"+searchText+"'";
             }
             model=dbManager.getTableModel(query,tblInterns);
             tblInterns.setModel(model); 
@@ -74,7 +83,8 @@ private boolean insertion;
             }
            
             if (!status.equals("All Statuses")) {
-                filteredInterns.removeIf(asset -> !status.equalsIgnoreCase((String) asset.get("status")));
+                filteredInterns.removeIf(asset -> 
+                        !status.equalsIgnoreCase((String) asset.get("status")));
             }
            
              DefaultTableModel model = (DefaultTableModel) tblInterns.getModel();
@@ -130,7 +140,7 @@ private boolean insertion;
  });}
     private void loadSelectedRowToForm() {
         row = tblInterns.getSelectedRow();
-        try{
+       // try{
              if (row >= 0) {
             id=Integer.parseInt(tblInterns.getValueAt(row, 0).toString());
             txtApplicant.setText(tblInterns.getValueAt(row, 1).toString());
@@ -143,61 +153,88 @@ private boolean insertion;
             cmbAppliedFor.setSelectedItem(tblInterns.getValueAt(row, 8));
             txtDate.setDate((Date) tblInterns.getValueAt(row, 9));
             cmbStatus.setSelectedItem(tblInterns.getValueAt(row, 10));
-            txtInterviewDate.setDate((Date)tblInterns.getValueAt(row, 11));
+            //txtInterviewDate.setDate((Date)tblInterns.getValueAt(row, 11));
+            Object val = tblInterns.getValueAt(row, 11);
+            LocalDateTime interviewDateTime = null;
+            if (val instanceof Timestamp) {
+                interviewDateTime = ((Timestamp) val).toLocalDateTime();
+            } else if (val instanceof LocalDateTime) {
+                interviewDateTime = (LocalDateTime) val;
+            } else if (val instanceof Date) {
+                interviewDateTime = ((Date) val).toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDateTime();
+            } else if (val instanceof String) {
+                // adjust the formatter to match your stored string format
+                interviewDateTime = LocalDateTime.parse((String) val);
+            }
+            if (interviewDateTime != null) {
+                Date asDate = Date.from(interviewDateTime.atZone
+        (ZoneId.systemDefault()).toInstant());
+                txtInterviewDate.setDate(asDate);   // JDateChooser
+                spinTime.setValue(asDate);          // JSpinner (with SpinnerDateModel)
+            } else {
+                JOptionPane.showMessageDialog(this,"Value was null or unrecognized type: " + val);
+            }
             txtNotes.setText(tblInterns.getValueAt(row, 12).toString());
             txtSkill.setText(tblInterns.getValueAt(row, 13).toString());
             insertion=false; 
              }
-        }catch(NullPointerException e)
-                     {
-                     JOptionPane.showMessageDialog(this, "Some fields are null");
-                     }
+//        }catch(NullPointerException e)
+//                     {
+//                     JOptionPane.showMessageDialog(this, "Some fields are null");
+//                     }
     }
-     private boolean ValidateData()
-    {
-        if(!Validator.validateRequired(txtApplicant, "Applicant Name"))
-        {
-              return false; 
+     private void insertData(){
+         if(!insertion)JOptionPane.showMessageDialog(this, "You can't insert"
+                 + " duplicate data into the database!");
+         else
+         {
+      if(!ValidateData()) return;
+        name=txtApplicant.getText();
+        email=txtEmail.getText();
+        phone=txtPhone.getText();
+        university=txtUniversity.getText();
+        course=txtCourse.getText();
+        qualification=cmbQualification.getSelectedItem().toString();
+        path=txtPath.getText();
+        applied_for=cmbAppliedFor.getSelectedItem().toString();
+        date=txtDate.getDate();
+        status=cmbStatus.getSelectedItem().toString();
+        Date interviewD=txtInterviewDate.getDate();
+        Date interviewT=(Date)spinTime.getValue();
+        if (interviewD != null && interviewT != null) {
+        // Extract hours/minutes from the spinner using a Calendar
+        Calendar timeCal = Calendar.getInstance();
+        timeCal.setTime(interviewT);
+        int hours = timeCal.get(Calendar.HOUR_OF_DAY);
+        int minutes = timeCal.get(Calendar.MINUTE);
+        int seconds = timeCal.get(Calendar.SECOND);
+        // Convert the JCalendar Date to modern LocalDateTime and inject the time
+        interviewDate = interviewD.toInstant()
+                                             .atZone(ZoneId.systemDefault())
+                                             .toLocalDateTime()
+                                             .withHour(hours)
+                                             .withMinute(minutes)
+                                             .withSecond(seconds);
         }
-        
-        if(!Validator.isEmailValid(txtEmail.getText(),"Email",txtEmail))
-        {
-            return false;
-        }
-        if(!Validator.isPhoneValid(txtPhone.getText(),txtPhone,"Phone Number"))
-        {
-            return false;
-        }
-      
-        if(cmbQualification.getSelectedIndex()==0)
-        {
-            JOptionPane.showMessageDialog(this, "Please Select Qualification","Validation Error",JOptionPane.ERROR_MESSAGE);
-            cmbQualification.requestFocusInWindow();
-            cmbQualification.setBorder(BorderFactory.createLineBorder(Color.red,2));
-            return false;
-        }
-        if(cmbAppliedFor.getSelectedIndex()==0)
-        {
-            JOptionPane.showMessageDialog(this, "Please Select Applied For","Validation Error",JOptionPane.ERROR_MESSAGE);
-            cmbAppliedFor.requestFocusInWindow();
-            cmbAppliedFor.setBorder(BorderFactory.createLineBorder(Color.red,2));
-            return false;
-        }
-       
-        if(!Validator.isDateValid(txtDate.getDate(),txtDate))
-        {
-            return false;
-        }
-         if(cmbStatus.getSelectedIndex()==0)
-        {
-            JOptionPane.showMessageDialog(this, "Please Select Status","Validation Error",JOptionPane.ERROR_MESSAGE);
-            cmbStatus.requestFocusInWindow();
-            cmbStatus.setBorder(BorderFactory.createLineBorder(Color.red,2));
-            return false;
-        }
-        
-        return true;
-    }
+//interviewDate=txtInterviewDate.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        note=txtNotes.getText();
+        skills=txtSkill.getText();
+       int row=internservice.updateIntern(id,name, email, phone, university, course,
+               qualification, path, applied_for, date, status, interviewDate, note, skills);
+       if(row>0) 
+       {
+           JOptionPane.showMessageDialog(this, "Data Updated Successfully!");
+           loadInternData();
+           clearData();
+       }
+        else
+       {
+           JOptionPane.showMessageDialog(null, "Data Couldn't Updated");
+       }  
+         }
+}
      private void deleteIntern() {
         row = tblInterns.getSelectedRow();
         if (row == -1) {
@@ -227,11 +264,28 @@ private boolean insertion;
         applied_for=cmbAppliedFor.getSelectedItem().toString();
         date=txtDate.getDate();
         status=cmbStatus.getSelectedItem().toString();
-        interviewDate=txtInterviewDate.getDate();
+        Date interviewD=txtInterviewDate.getDate();
+        Date interviewT=(Date)spinTime.getValue();
+        if (interviewD != null && interviewT != null) {
+        // Extract hours/minutes from the spinner using a Calendar
+        Calendar timeCal = Calendar.getInstance();
+        timeCal.setTime(interviewT);
+        int hours = timeCal.get(Calendar.HOUR_OF_DAY);
+        int minutes = timeCal.get(Calendar.MINUTE);
+        int seconds = timeCal.get(Calendar.SECOND);
+        // Convert the JCalendar Date to modern LocalDateTime and inject the time
+        interviewDate = interviewD.toInstant()
+                                             .atZone(ZoneId.systemDefault())
+                                             .toLocalDateTime()
+                                             .withHour(hours)
+                                             .withMinute(minutes)
+                                             .withSecond(seconds);
+        }
+//interviewDate=txtInterviewDate.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
         note=txtNotes.getText();
         skills=txtSkill.getText();
-       int row=internservice.updateIntern(id,name, email, phone, university, course, qualification, path, applied_for, 
-               date, status, interviewDate, note, skills);
+       int row=internservice.updateIntern(id,name, email, phone, university, course,
+               qualification, path, applied_for, date, status, interviewDate, note, skills);
        if(row>0) 
        {
            JOptionPane.showMessageDialog(this, "Data Updated Successfully!");
@@ -243,9 +297,57 @@ private boolean insertion;
            JOptionPane.showMessageDialog(null, "Data Couldn't Updated");
        }   
 }
+          private boolean ValidateData()
+    {
+        if(!Validator.validateRequired(txtApplicant, "Applicant Name"))
+        {
+              return false; 
+        }
+        
+        if(!Validator.isEmailValid(txtEmail.getText(),"Email",txtEmail))
+        {
+            return false;
+        }
+        if(!Validator.isPhoneValid(txtPhone.getText(),txtPhone,"Phone Number"))
+        {
+            return false;
+        }
+      
+        if(cmbQualification.getSelectedIndex()==0)
+        {
+            JOptionPane.showMessageDialog(this, "Please Select Qualification","Validation Error",
+                    JOptionPane.ERROR_MESSAGE);
+            cmbQualification.requestFocusInWindow();
+            cmbQualification.setBorder(BorderFactory.createLineBorder(Color.red,2));
+            return false;
+        }
+        if(cmbAppliedFor.getSelectedIndex()==0)
+        {
+            JOptionPane.showMessageDialog(this, "Please Select Applied For","Validation Error",
+                    JOptionPane.ERROR_MESSAGE);
+            cmbAppliedFor.requestFocusInWindow();
+            cmbAppliedFor.setBorder(BorderFactory.createLineBorder(Color.red,2));
+            return false;
+        }
+       
+        if(!Validator.isDateValid(txtDate.getDate(),txtDate))
+        {
+            return false;
+        }
+         if(cmbStatus.getSelectedIndex()==0)
+        {
+            JOptionPane.showMessageDialog(this, "Please Select Status","Validation Error",
+                    JOptionPane.ERROR_MESSAGE);
+            cmbStatus.requestFocusInWindow();
+            cmbStatus.setBorder(BorderFactory.createLineBorder(Color.red,2));
+            return false;
+        }
+        
+        return true;
+    }
         private void clearData()
         {
-            txtApplicant.setText("");
+        txtApplicant.setText("");
         cmbAppliedFor.setSelectedIndex(0);
         txtCourse.setText("");
         txtDate.setDate(null);
@@ -258,6 +360,7 @@ private boolean insertion;
         txtUniversity.setText("");
         cmbQualification.setSelectedIndex(0);
         cmbStatus.setSelectedIndex(0);
+        insertion=true;
         }
     /**
      * This method is called from within the constructor to initialize the form.
@@ -302,7 +405,7 @@ private boolean insertion;
         txtCourse = new javax.swing.JTextField();
         jLabel20 = new javax.swing.JLabel();
         txtPath = new javax.swing.JTextField();
-        jButton2 = new javax.swing.JButton();
+        btnBrowse = new javax.swing.JButton();
         cmbAppliedFor = new javax.swing.JComboBox<>();
         cmbStatus = new javax.swing.JComboBox<>();
         txtInterviewDate = new com.toedter.calendar.JDateChooser();
@@ -311,6 +414,8 @@ private boolean insertion;
         jLabel22 = new javax.swing.JLabel();
         txtSkill = new javax.swing.JTextField();
         jLabel23 = new javax.swing.JLabel();
+        spinTime = new javax.swing.JSpinner();
+        jTextField1 = new javax.swing.JTextField();
 
         setClosable(true);
         setIconifiable(true);
@@ -474,12 +579,6 @@ private boolean insertion;
 
         jLabel14.setText("Qualification:");
 
-        txtUniversity.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                txtUniversityKeyPressed(evt);
-            }
-        });
-
         jLabel15.setText("Email:");
 
         txtPhone.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -531,28 +630,21 @@ private boolean insertion;
             }
         });
 
-        txtCourse.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                txtCourseKeyPressed(evt);
-            }
-        });
-
         jLabel20.setText("Course:");
 
-        txtPath.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                txtPathKeyPressed(evt);
-            }
-        });
-
-        jButton2.setText("Browse...");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        btnBrowse.setText("Browse...");
+        btnBrowse.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                btnBrowseActionPerformed(evt);
             }
         });
 
         cmbAppliedFor.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "-- Select Field --", "Development", "Support", "Training", "General" }));
+        cmbAppliedFor.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                cmbAppliedForItemStateChanged(evt);
+            }
+        });
 
         cmbStatus.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "-- Select Status --", "Received", "Reviewed", "Interviewed", "Accepted", "Rejected", "Hired" }));
 
@@ -565,21 +657,11 @@ private boolean insertion;
 
         jLabel21.setText("Interview Date:");
 
-        txtNotes.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                txtNotesKeyPressed(evt);
-            }
-        });
-
         jLabel22.setText("Notes:");
 
-        txtSkill.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                txtSkillKeyPressed(evt);
-            }
-        });
-
         jLabel23.setText("Skills:");
+
+        spinTime.setModel(new javax.swing.SpinnerDateModel());
 
         javax.swing.GroupLayout pnlOperation1Layout = new javax.swing.GroupLayout(pnlOperation1);
         pnlOperation1.setLayout(pnlOperation1Layout);
@@ -620,16 +702,17 @@ private boolean insertion;
                                 .addComponent(btnUpdate, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(btnDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(138, 138, 138))
+                                .addGap(48, 48, 48)
+                                .addComponent(jTextField1))
                             .addGroup(pnlOperation1Layout.createSequentialGroup()
-                                .addComponent(jButton2)
+                                .addComponent(btnBrowse)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(txtPath, javax.swing.GroupLayout.PREFERRED_SIZE, 191, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(0, 0, 0)
                                 .addComponent(jLabel17)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(cmbAppliedFor, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
+                                .addComponent(cmbAppliedFor, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jLabel18)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(pnlOperation1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
@@ -647,15 +730,18 @@ private boolean insertion;
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jLabel21)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtInterviewDate, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel22)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtNotes, javax.swing.GroupLayout.PREFERRED_SIZE, 217, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel23)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtSkill, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(pnlOperation1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(pnlOperation1Layout.createSequentialGroup()
+                                .addComponent(txtInterviewDate, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel22)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(txtNotes, javax.swing.GroupLayout.PREFERRED_SIZE, 217, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel23)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(txtSkill, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(spinTime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addGap(0, 0, 0))
         );
         pnlOperation1Layout.setVerticalGroup(
@@ -683,7 +769,7 @@ private boolean insertion;
                         .addComponent(jLabel18)
                         .addComponent(jLabel19)
                         .addComponent(txtPath, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jButton2)
+                        .addComponent(btnBrowse)
                         .addComponent(cmbAppliedFor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(cmbStatus, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(jLabel21))
@@ -696,18 +782,17 @@ private boolean insertion;
                         .addGroup(pnlOperation1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(txtNotes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel22))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(pnlOperation1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(pnlOperation1Layout.createSequentialGroup()
-                        .addGap(7, 7, 7)
-                        .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(pnlOperation1Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(pnlOperation1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(pnlOperation1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(btnInsert)
-                                .addComponent(btnUpdate)
-                                .addComponent(btnDelete))
-                            .addComponent(btnClear))))
+                    .addGroup(pnlOperation1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(btnInsert)
+                        .addComponent(btnUpdate)
+                        .addComponent(btnDelete)
+                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(btnClear)
+                    .addGroup(pnlOperation1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addComponent(spinTime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(0, 0, 0))
         );
 
@@ -755,23 +840,27 @@ private boolean insertion;
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void txtApplicantKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtApplicantKeyPressed
-        // TODO add your handling code here:
+        txtApplicant.setBackground(Color.WHITE);
+        txtApplicant.setBorder(UIManager.getBorder("TextField.border"));
+        txtApplicant.setForeground(Color.BLACK);
     }//GEN-LAST:event_txtApplicantKeyPressed
 
     private void txtEmailKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtEmailKeyPressed
-        // TODO add your handling code here:
+        txtEmail.setBackground(Color.WHITE);
+        txtEmail.setBorder(UIManager.getBorder("TextField.border"));
+        txtEmail.setForeground(Color.BLACK);
     }//GEN-LAST:event_txtEmailKeyPressed
 
     private void cmbQualificationItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cmbQualificationItemStateChanged
-        // TODO add your handling code here:
+        cmbQualification.setBackground(Color.WHITE);
+        cmbQualification.setBorder(UIManager.getBorder("TextField.border"));
+        cmbQualification.setForeground(Color.BLACK);
     }//GEN-LAST:event_cmbQualificationItemStateChanged
 
-    private void txtUniversityKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtUniversityKeyPressed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtUniversityKeyPressed
-
     private void txtPhoneKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtPhoneKeyPressed
-        // TODO add your handling code here:
+        txtPhone.setBackground(Color.WHITE);
+        txtPhone.setBorder(UIManager.getBorder("TextField.border"));
+        txtPhone.setForeground(Color.BLACK);
     }//GEN-LAST:event_txtPhoneKeyPressed
 
     private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
@@ -787,22 +876,16 @@ private boolean insertion;
     }//GEN-LAST:event_btnDeleteActionPerformed
 
     private void btnInsertActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInsertActionPerformed
-        // TODO add your handling code here:
+        insertData();
     }//GEN-LAST:event_btnInsertActionPerformed
 
     private void txtDateKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtDateKeyPressed
-        // TODO add your handling code here:
+        txtDate.setBackground(Color.WHITE);
+        txtDate.setBorder(UIManager.getBorder("TextField.border"));
+        txtDate.setForeground(Color.BLACK);
     }//GEN-LAST:event_txtDateKeyPressed
 
-    private void txtCourseKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtCourseKeyPressed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtCourseKeyPressed
-
-    private void txtPathKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtPathKeyPressed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtPathKeyPressed
-
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+    private void btnBrowseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBrowseActionPerformed
     // 1. Create the file chooser popup (it won't sit permanently on your form)
     javax.swing.JFileChooser chooser = new javax.swing.JFileChooser(); 
     
@@ -821,22 +904,23 @@ private boolean insertion;
         txtPath.setText(filePath); 
     }
 
-    }//GEN-LAST:event_jButton2ActionPerformed
+    }//GEN-LAST:event_btnBrowseActionPerformed
 
     private void txtInterviewDateKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtInterviewDateKeyPressed
-        // TODO add your handling code here:
+        txtInterviewDate.setBackground(Color.WHITE);
+        txtInterviewDate.setBorder(UIManager.getBorder("TextField.border"));
+        txtInterviewDate.setForeground(Color.BLACK);
     }//GEN-LAST:event_txtInterviewDateKeyPressed
 
-    private void txtNotesKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtNotesKeyPressed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtNotesKeyPressed
-
-    private void txtSkillKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSkillKeyPressed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtSkillKeyPressed
+    private void cmbAppliedForItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cmbAppliedForItemStateChanged
+        cmbAppliedFor.setBackground(Color.WHITE);
+        cmbAppliedFor.setBorder(UIManager.getBorder("TextField.border"));
+        cmbAppliedFor.setForeground(Color.BLACK);
+    }//GEN-LAST:event_cmbAppliedForItemStateChanged
    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnBrowse;
     private javax.swing.JButton btnClear;
     private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnFilter;
@@ -850,7 +934,6 @@ private boolean insertion;
     private javax.swing.JComboBox<String> cmbStatus;
     private javax.swing.JComboBox<String> cmbStatusFilter;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
@@ -865,8 +948,10 @@ private boolean insertion;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextField jTextField1;
     private javax.swing.JPanel pnlOperation1;
     private javax.swing.JProgressBar progressBar;
+    private javax.swing.JSpinner spinTime;
     private javax.swing.JPopupMenu tablePopupMenu;
     private javax.swing.JTable tblInterns;
     private javax.swing.JTextField txtApplicant;

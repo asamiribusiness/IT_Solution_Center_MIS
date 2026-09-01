@@ -2,10 +2,10 @@ package com.itsolutioncenter.service;
 
 import com.itsolutioncenter.dao.DatabaseManager;
 import com.itsolutioncenter.util.DateUtil;
-import com.itsolutioncenter.util.Validator;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.*;
-import javax.swing.JOptionPane;
+
 
 public class InternService {
     private DatabaseManager db = DatabaseManager.getInstance();
@@ -15,30 +15,29 @@ public class InternService {
     /**
      * Submit intern application
      */
-    public int submitApplication(String name, String email, String phone,
-                                String university, String course, String year,
-                                String appliedFor, String skills) throws SQLException {
-       
-        // Validate required fields
-        Validator.validateRequired(name, "Applicant Name");
-        Validator.validateRequired(email, "Email");
-        Validator.validateEmail(email);
+    public int submitApplication(String applicant,String email,String phone,String university, String course,
+           String qualification, String path,String appliedFor,Date date,String status, LocalDateTime interviewDate,
+           String note,String skills) throws SQLException {
        
         Map<String, Object> application = new HashMap<>();
-        application.put("applicant_name", name);
+        application.put("applicant_name", applicant);
         application.put("email", email);
         application.put("phone", phone);
         application.put("university", university);
         application.put("course", course);
-        application.put("year_of_study", year);
+        application.put("qualification", qualification);
+        application.put("resume_path", path);
         application.put("applied_for", appliedFor);
+        application.put("applicatoin_date",date);
+        application.put("status", status);
+        application.put("interview_date",interviewDate);
+        application.put("interview_notes",note);
         application.put("skills", skills);
-        application.put("status", "received");
        
         return db.insert("intern_applications", application);
     }
    public int updateIntern(int internID,String applicant,String email,String phone,String university, String course,
-           String qualification, String path,String appliedFor,Date date,String status, Date interviewDate,String note,String skills)
+           String qualification, String path,String appliedFor,Date date,String status, LocalDateTime interviewDate,String note,String skills)
 {
         Map<String, Object> updateData = new HashMap<>();
         updateData.put("application_id", internID);
@@ -55,7 +54,7 @@ public class InternService {
         updateData.put("interview_date", interviewDate);     
         updateData.put("interview_notes",note);
         updateData.put("skills", skills); 
-       int rows=db.update("intern_application", updateData, "application_id = ?", internID);
+       int rows=db.update("intern_applications", updateData, "application_id = ?", internID);
 
        return rows;
 } 

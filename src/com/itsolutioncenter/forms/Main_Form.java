@@ -113,7 +113,7 @@ public class Main_Form extends javax.swing.JFrame {
         MainDesktop.setLayout(MainDesktopLayout);
         MainDesktopLayout.setHorizontalGroup(
             MainDesktopLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 720, Short.MAX_VALUE)
+            .addGap(0, 869, Short.MAX_VALUE)
         );
         MainDesktopLayout.setVerticalGroup(
             MainDesktopLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -610,7 +610,7 @@ public class Main_Form extends javax.swing.JFrame {
     }//GEN-LAST:event_stdEditMenuItemActionPerformed
 
     private void stdViewMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stdViewMenuItemActionPerformed
-        
+    new StudentListForm().setVisible(true);
     }//GEN-LAST:event_stdViewMenuItemActionPerformed
     private void showAccessDenied(String module) {
         JOptionPane.showMessageDialog(this,
