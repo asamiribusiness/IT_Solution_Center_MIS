@@ -615,7 +615,15 @@ public class Main_Form extends javax.swing.JFrame {
     }//GEN-LAST:event_stdEditMenuItemActionPerformed
 
     private void stdViewMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stdViewMenuItemActionPerformed
-    new StudentListForm().setVisible(true);
+    StudentListForm sLForm=new StudentListForm();
+        MainDesktop.add(sLForm);
+        try {
+    // Force the internal frame to maximize immediately
+    sLForm.setMaximum(true);
+} catch (java.beans.PropertyVetoException e) {
+    e.printStackTrace();
+}
+        sLForm.setVisible(true);
     }//GEN-LAST:event_stdViewMenuItemActionPerformed
 
     private void internManagMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_internManagMenuItemActionPerformed

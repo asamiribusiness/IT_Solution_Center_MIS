@@ -39,7 +39,7 @@ import javax.swing.table.TableModel;
  *
  * @author Ahmad Shafiq Amiri
  */
-public class CourseEnrollmentForm extends JInternalFrame {
+public class CourseEnrollmentFinancialForm extends JInternalFrame {
 CourseService service=new CourseService();
 DatabaseManager db=DatabaseManager.getInstance();
 private User user;
@@ -54,9 +54,9 @@ private Permission permissionService;
     /**
      * Creates new form CourseEnrollmentForm
      */
-    public CourseEnrollmentForm(User user, Permission permissionService) {
+    public CourseEnrollmentFinancialForm(User user, Permission permissionService) {
         initComponents();
-       loadEnrollments();
+        loadEnrollments();
         loadCourseName();
         this.user=user;
         this.permissionService=permissionService;
@@ -69,9 +69,9 @@ private Permission permissionService;
         tablePopupMenu.add("Edit").addActionListener(e ->loadSelectedRowToForm());
         tablePopupMenu.add("Delete").addActionListener(e ->{ deleteCourse();});
         tablePopupMenu.add("Refresh").addActionListener(e ->loadEnrollments());
-        cmbCourseId.setSelectedIndex(-1);
+        cmbCourseName.setSelectedIndex(-1);
         cmbPaymentSt.setSelectedIndex(-1);
-        //loadStatisticsTab();
+        loadStatisticsTab();
         //Double click to load data into controls
         tblEnrollment.addMouseListener(new MouseAdapter(){
         @Override
@@ -96,49 +96,27 @@ private void loadEnrollments()
 //        dispose();
 //        return;
 //    }
-//        query="SELECT course_enrollments.enrollment_id, courses.course_name," +
-//        "course_enrollments.student_name,course_enrollments.student_email,course_enrollments.student_phone," +
-//        "course_enrollments.enrollment_date,course_enrollments.fee_paid,course_enrollments.total_fee," +
-//        "course_enrollments.payment_status,course_enrollments.attendance_percentage,course_enrollments.certificate_issued," +
-//        "course_enrollments.notes FROM courses INNER JOIN course_enrollments ON " +
-//        "course_enrollments.course_id = courses.course_id ORDER BY course_enrollments.enrollment_id";
-        query="SELECT " +
-"	course_enrollments.enrollment_id, " +
-"	courses.course_name, " +
-"	students.full_name, " +
-"	students.email, " +
-"	students.phone, " +
-"	course_enrollments.enrollment_date, " +
-"	course_enrollments.fee_paid, " +
-"	courses.fee, " +
-"	course_enrollments.`status`, " +
-"	course_enrollments.attendance_percentage, " +
-"	course_enrollments.certificate_issued, " +
-"	course_enrollments.notes " +
-"FROM " +
-"	course_enrollments " +
-"	INNER JOIN " +
-"	courses " +
-"	ON " +
-"		courses.course_id = course_enrollments.course_id " +
-"	INNER JOIN " +
-"	students " +
-"	ON " +
-"		students.student_id = course_enrollments.student_id";
+        query="SELECT course_enrollments.enrollment_id, courses.course_name," +
+        "course_enrollments.student_name,course_enrollments.student_email,course_enrollments.student_phone," +
+        "course_enrollments.enrollment_date,course_enrollments.fee_paid,course_enrollments.total_fee," +
+        "course_enrollments.payment_status,course_enrollments.attendance_percentage,course_enrollments.certificate_issued," +
+        "course_enrollments.notes FROM courses INNER JOIN course_enrollments ON " +
+        "course_enrollments.course_id = courses.course_id ORDER BY course_enrollments.enrollment_id";
        tableModel=db.getTableModel(query,tblEnrollment);
        tblEnrollment.setModel(tableModel);     
        colorTableRows();
     }
 private void loadCourseName ()
 {
-     cmbCourseId.removeAllItems();
-    query="Select course_id from courses order by course_id";
-
+    query="Select course_name from courses order by course_id";
+//    rs=DatabaseManager.executeSimpleQuery(query);
     try
     {
+//        cmbCourseName.removeAllItems();
+//        cmbCourseName.addItem("Select Instructor");
         List<Map<String,Object>> courseNames=db.select(query);
         for (Map<String,Object> Course : courseNames) {
-        cmbCourseId.addItem(Course.get("course_id").toString());
+        cmbCourseName.addItem(Course.get("course_name").toString());
         }
     }catch(SQLException e)
     {
@@ -151,10 +129,10 @@ private void loadSelectedRowToForm() {
         { 
              if (row >= 0) {
             txtEnrollmentID.setText(tblEnrollment.getValueAt(row, 0).toString());
-            cmbCourseId.setSelectedItem(tblEnrollment.getValueAt(row, 1));
+            cmbCourseName.setSelectedItem(tblEnrollment.getValueAt(row, 1));
             txtStdName.setText(tblEnrollment.getValueAt(row, 2).toString());
-            //txtEmail.setText(tblEnrollment.getValueAt(row, 3).toString());
-           // txtPhone.setText(tblEnrollment.getValueAt(row, 4).toString());
+            txtEmail.setText(tblEnrollment.getValueAt(row, 3).toString());
+            txtPhone.setText(tblEnrollment.getValueAt(row, 4).toString());
             txtEnrollmentDate.setDate((Date)(tblEnrollment.getValueAt(row, 5)));
             txtFeePaid.setText(tblEnrollment.getValueAt(row, 6).toString());
             txtTotalFee.setText(tblEnrollment.getValueAt(row, 7).toString());
@@ -205,8 +183,10 @@ private void loadSelectedRowToForm() {
             insertion=true;
         }
         //enrollment_ID=Integer.parseInt(txtEnrollmentID.getText());
-        courseID=Integer.parseInt(cmbCourseId.getSelectedItem().toString());
+        courseID=cmbCourseName.getSelectedIndex()+1;
         studentName=txtStdName.getText();
+        phone=txtPhone.getText();
+        email=txtEmail.getText();
         enrollmentDate=txtEnrollmentDate.getDate();
         feePaid=Double.parseDouble(txtFeePaid.getText());
         totalFee=Double.parseDouble(txtTotalFee.getText());
@@ -244,10 +224,10 @@ private void loadSelectedRowToForm() {
         insertion=false;
         if(!validationControls()) return;
         enrollment_ID=Integer.parseInt(txtEnrollmentID.getText());
-        courseID=cmbCourseId.getSelectedIndex()+1;
+        courseID=cmbCourseName.getSelectedIndex()+1;
         studentName=txtStdName.getText();
-      //  phone=txtPhone.getText();
-      //  email=txtEmail.getText();
+        phone=txtPhone.getText();
+        email=txtEmail.getText();
         enrollmentDate=txtEnrollmentDate.getDate();
         feePaid=Double.parseDouble(txtFeePaid.getText());
         totalFee=Double.parseDouble(txtTotalFee.getText());
@@ -286,7 +266,6 @@ private void loadSelectedRowToForm() {
     }
      private void loadStatistics() {
          Map<String, Object> stats = service.getCourseStatistics();
-        
          String content="Number of Students: "+stats.get("No_of_Students")+
                  "\nTotal Fee Amount: "+Formatter.formatCurrency((Number)stats.get("Total_Fee"))+
                  "\nPaid Fee Amount: "+Formatter.formatCurrency((Number)stats.get("Fee_Paid"))+
@@ -320,14 +299,30 @@ private void loadSelectedRowToForm() {
      }
     private boolean validationControls()
     {
-        if(cmbCourseId.getSelectedIndex()==-1)
+        if(cmbCourseName.getSelectedIndex()==-1)
         {
             JOptionPane.showMessageDialog(this, "Please Select Course Name","Validation Error",JOptionPane.ERROR_MESSAGE);
-            cmbCourseId.requestFocusInWindow();
-            cmbCourseId.setBorder(BorderFactory.createLineBorder(Color.red,2));
+            cmbCourseName.requestFocusInWindow();
+            cmbCourseName.setBorder(BorderFactory.createLineBorder(Color.red,2));
             return false;
         }
-        if(!Validator.validateRequired(txtStdId, "Student ID"))
+        if(!Validator.validateRequired(txtStdName, "Student Name"))
+        {
+            return false;
+        }
+        if(!Validator.validateRequired(txtPhone, "Cell Phone"))
+        {
+            return false;
+        }
+        if(!Validator.isPhoneValid(txtPhone.getText(),txtPhone,"Phone Number"))
+        {
+            return false;
+        }
+        if(!Validator.validateRequired(txtEmail, "Email"))
+        {
+            return false;
+        }
+        if(!Validator.isEmailValid(txtEmail.getText(), "Email", txtEmail))
         {
             return false;
         }
@@ -367,10 +362,10 @@ private void loadSelectedRowToForm() {
 //        return;
 //    }
             txtEnrollmentID.setText("");
-            cmbCourseId.setSelectedIndex(-1);
+            cmbCourseName.setSelectedIndex(-1);
             txtStdName.setText("");
-//            txtPhone.setText("");
-//            txtEmail.setText("");
+            txtPhone.setText("");
+            txtEmail.setText("");
             txtEnrollmentDate.setDate(null);
             txtFeePaid.setText("");
             txtTotalFee.setText("");
@@ -492,6 +487,9 @@ public void exportTableToCSV() {
         txtEnrollmentID = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
+        txtStdName = new javax.swing.JTextField();
+        jLabel5 = new javax.swing.JLabel();
+        txtEmail = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         cmbPaymentSt = new javax.swing.JComboBox<>();
@@ -505,19 +503,16 @@ public void exportTableToCSV() {
         btnDelete = new javax.swing.JButton();
         btnUpdate = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
-        cmbCourseId = new javax.swing.JComboBox<>();
+        cmbCourseName = new javax.swing.JComboBox<>();
         txtFeePaid = new javax.swing.JTextField();
         chkCertificate = new javax.swing.JCheckBox();
         txtNote = new javax.swing.JTextField();
         jLabel11 = new javax.swing.JLabel();
         txtRemained = new javax.swing.JTextField();
+        jLabel13 = new javax.swing.JLabel();
+        txtPhone = new javax.swing.JTextField();
         txtEnrollmentDate = new com.toedter.calendar.JDateChooser();
         btnCSV = new javax.swing.JButton();
-        jLabel5 = new javax.swing.JLabel();
-        txtCourseName = new javax.swing.JTextField();
-        jLabel13 = new javax.swing.JLabel();
-        txtStdId = new javax.swing.JTextField();
-        txtStdName = new javax.swing.JTextField();
         jPanel3 = new javax.swing.JPanel();
         jLabel14 = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
@@ -559,9 +554,9 @@ public void exportTableToCSV() {
             }
         });
 
-        jLabel2.setText("Status:");
+        jLabel2.setText("Payment Status:");
 
-        cmbPaymentStatusFilter.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "All Category", "Active", "Left", "Graduated" }));
+        cmbPaymentStatusFilter.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "All Category", "Pending", "Partial", "Paid", "Refunded" }));
 
         jButton3.setText("Filter");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
@@ -648,22 +643,36 @@ public void exportTableToCSV() {
         txtEnrollmentID.setEnabled(false);
         txtEnrollmentID.setFocusTraversalPolicyProvider(true);
 
-        jLabel3.setText("Course ID:");
+        jLabel3.setText("Course Name:");
 
         jLabel4.setText("Student Name:");
+
+        txtStdName.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                txtStdNameKeyPressed(evt);
+            }
+        });
+
+        jLabel5.setText("Email:");
+
+        txtEmail.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                txtEmailKeyPressed(evt);
+            }
+        });
 
         jLabel6.setText("Enrollment Date:");
 
         jLabel7.setText("Fee Paid:");
 
-        cmbPaymentSt.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Active", "Left", "Graduated" }));
+        cmbPaymentSt.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Pending", "Partial", "Paid", "Refunded" }));
         cmbPaymentSt.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 cmbPaymentStMouseClicked(evt);
             }
         });
 
-        jLabel8.setText("Status:");
+        jLabel8.setText("Payment Status:");
 
         txtTotalFee.setToolTipText("");
         txtTotalFee.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -713,14 +722,9 @@ public void exportTableToCSV() {
             }
         });
 
-        cmbCourseId.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                cmbCourseIdItemStateChanged(evt);
-            }
-        });
-        cmbCourseId.addMouseListener(new java.awt.event.MouseAdapter() {
+        cmbCourseName.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                cmbCourseIdMouseClicked(evt);
+                cmbCourseNameMouseClicked(evt);
             }
         });
 
@@ -730,7 +734,6 @@ public void exportTableToCSV() {
             }
         });
 
-        chkCertificate.setBackground(new java.awt.Color(102, 204, 255));
         chkCertificate.setText("Certificate Issued");
 
         jLabel11.setText("Remainded:");
@@ -738,6 +741,14 @@ public void exportTableToCSV() {
         txtRemained.setEditable(false);
         txtRemained.setToolTipText("");
         txtRemained.setEnabled(false);
+
+        jLabel13.setText("Cell Phone:");
+
+        txtPhone.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                txtPhoneKeyPressed(evt);
+            }
+        });
 
         txtEnrollmentDate.setToolTipText("Date format is yyyy-MM-dd");
         txtEnrollmentDate.setDateFormatString("yyyy-MM-dd");
@@ -749,37 +760,13 @@ public void exportTableToCSV() {
             }
         });
 
-        jLabel5.setText("Course Name:");
-
-        txtCourseName.setEditable(false);
-        txtCourseName.setFocusable(false);
-
-        jLabel13.setText("Student ID:");
-
-        txtStdId.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                txtStdIdKeyPressed(evt);
-            }
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                txtStdIdKeyTyped(evt);
-            }
-        });
-
-        txtStdName.setEditable(false);
-        txtStdName.setFocusable(false);
-        txtStdName.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                txtStdNameKeyPressed(evt);
-            }
-        });
-
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(19, 19, 19)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel1Layout.createSequentialGroup()
@@ -788,108 +775,123 @@ public void exportTableToCSV() {
                                 .addComponent(btnDelete)
                                 .addGap(34, 34, 34)
                                 .addComponent(btnUpdate)
-                                .addGap(150, 150, 150)
-                                .addComponent(jButton1)
-                                .addGap(18, 18, 18)
-                                .addComponent(btnCSV))
+                                .addGap(0, 0, Short.MAX_VALUE))
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addComponent(jLabel7)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(txtFeePaid, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(jLabel9)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(txtTotalFee, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addComponent(jLabel11)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(txtRemained, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel8)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(cmbPaymentSt, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addComponent(jLabel10)
-                                .addGap(0, 0, 0)
-                                .addComponent(txtAttendance, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addComponent(chkCertificate)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jLabel12)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(txtNote))))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(txtEnrollmentID, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(1, 1, 1)
-                        .addComponent(cmbCourseId, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGap(24, 24, 24)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(txtTotalFee, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(jLabel11))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel3)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(cmbCourseName, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(jLabel4)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addComponent(txtStdName, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
                         .addComponent(jLabel5)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtCourseName, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(txtEmail, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel13)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtStdId, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabel4)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtStdName, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(txtPhone, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel6)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtEnrollmentDate, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(txtEnrollmentDate, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(6, 6, 6)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jButton1)
+                                .addGap(117, 117, 117)
+                                .addComponent(btnCSV))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel8)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(cmbPaymentSt, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel10)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(txtAttendance, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(chkCertificate)
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel12)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(txtNote)))
+                .addGap(16, 16, 16))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(0, 17, Short.MAX_VALUE)
+                .addGap(13, 13, 13)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jLabel1)
                         .addComponent(txtEnrollmentID, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(jLabel3)
-                        .addComponent(cmbCourseId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(txtStdName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(jLabel5)
-                        .addComponent(txtCourseName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(txtStdId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(txtStdName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addComponent(txtEmail, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(jLabel6)
-                        .addComponent(txtEnrollmentDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(cmbCourseName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(txtPhone, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel13))
+                            .addComponent(txtEnrollmentDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(txtNote, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel7)
-                        .addComponent(txtFeePaid, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jLabel9)
-                        .addComponent(txtTotalFee, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jLabel11)
-                        .addComponent(txtRemained, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(cmbPaymentSt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jLabel8)
-                        .addComponent(jLabel10)
-                        .addComponent(txtAttendance, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(chkCertificate)
-                        .addComponent(jLabel12)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(btnCSV)
-                        .addComponent(jButton1))
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(btnInsert)
-                        .addComponent(btnDelete)
-                        .addComponent(btnUpdate)))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel7)
+                            .addComponent(txtFeePaid, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel9)
+                            .addComponent(txtTotalFee, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel11))
+                        .addGap(18, 18, Short.MAX_VALUE)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btnInsert)
+                            .addComponent(btnDelete)
+                            .addComponent(btnUpdate)))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(txtRemained, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(cmbPaymentSt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel8)
+                                .addComponent(jLabel10)
+                                .addComponent(txtAttendance, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(chkCertificate)
+                                .addComponent(jLabel12)
+                                .addComponent(txtNote, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(18, 18, Short.MAX_VALUE)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jButton1)
+                            .addComponent(btnCSV))))
                 .addGap(4, 4, 4))
         );
 
@@ -897,14 +899,14 @@ public void exportTableToCSV() {
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(89, 89, 89)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addContainerGap(93, Short.MAX_VALUE)
                 .addComponent(jButton2)
-                .addGap(36, 36, 36)
+                .addGap(84, 84, 84)
                 .addComponent(btnSearch)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(86, 86, 86)
                 .addComponent(jLabel2)
                 .addGap(18, 18, 18)
                 .addComponent(cmbPaymentStatusFilter, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -914,13 +916,17 @@ public void exportTableToCSV() {
                 .addComponent(jButton4)
                 .addGap(43, 43, 43)
                 .addComponent(jButton5)
-                .addContainerGap(330, Short.MAX_VALUE))
-            .addComponent(jScrollPane1)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(160, 160, 160))
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 1250, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(0, 12, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnSearch)
                     .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1001,7 +1007,7 @@ public void exportTableToCSV() {
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                .addContainerGap(348, Short.MAX_VALUE)
+                .addContainerGap(363, Short.MAX_VALUE)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(lblStudentCount)
                     .addComponent(lblFeePaid)
@@ -1070,7 +1076,7 @@ public void exportTableToCSV() {
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel23)
                     .addComponent(lblCertificateIssued))
-                .addContainerGap(54, Short.MAX_VALUE))
+                .addContainerGap(74, Short.MAX_VALUE))
         );
 
         jTabbedPane4.addTab("Statistics", jPanel3);
@@ -1079,9 +1085,7 @@ public void exportTableToCSV() {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jTabbedPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 1251, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addComponent(jTabbedPane4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1094,47 +1098,15 @@ public void exportTableToCSV() {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void cmbPaymentStMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cmbPaymentStMouseClicked
-        cmbPaymentSt.setBorder(UIManager.getBorder("TextField.border"));
-    }//GEN-LAST:event_cmbPaymentStMouseClicked
+    private void btnCSVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCSVActionPerformed
+        exportTableToCSV();
+    }//GEN-LAST:event_btnCSVActionPerformed
 
-    private void txtTotalFeeKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtTotalFeeKeyPressed
-        txtTotalFee.setBackground(Color.WHITE);
-        txtTotalFee.setBorder(UIManager.getBorder("TextField.border"));
-        txtTotalFee.setForeground(Color.BLACK);
-    }//GEN-LAST:event_txtTotalFeeKeyPressed
-
-    private void txtAttendanceKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtAttendanceKeyPressed
-        txtAttendance.setBackground(Color.WHITE);
-        txtAttendance.setBorder(UIManager.getBorder("TextField.border"));
-        txtAttendance.setForeground(Color.BLACK);
-    }//GEN-LAST:event_txtAttendanceKeyPressed
-
-    private void btnInsertActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInsertActionPerformed
-    try {
-        enrollStudent();
-    } catch (SQLException ex) {
-        JOptionPane.showMessageDialog(null, ex.getMessage());
-    }
-    }//GEN-LAST:event_btnInsertActionPerformed
-
-    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
-        deleteCourse();
-    }//GEN-LAST:event_btnDeleteActionPerformed
-
-    private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
-        updateData();
-    }//GEN-LAST:event_btnUpdateActionPerformed
-
-    private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
-        searchData();
-    }//GEN-LAST:event_btnSearchActionPerformed
-
-    private void cmbCourseIdMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cmbCourseIdMouseClicked
-        cmbCourseId.setBackground(Color.WHITE);
-        cmbCourseId.setBorder(UIManager.getBorder("TextField.border"));
-        cmbCourseId.setForeground(Color.BLACK);
-    }//GEN-LAST:event_cmbCourseIdMouseClicked
+    private void txtPhoneKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtPhoneKeyPressed
+        txtPhone.setBackground(Color.WHITE);
+        txtPhone.setBorder(UIManager.getBorder("TextField.border"));
+        txtPhone.setForeground(Color.BLACK);
+    }//GEN-LAST:event_txtPhoneKeyPressed
 
     private void txtFeePaidKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtFeePaidKeyPressed
         txtFeePaid.setBackground(Color.WHITE);
@@ -1142,13 +1114,63 @@ public void exportTableToCSV() {
         txtFeePaid.setForeground(Color.BLACK);
     }//GEN-LAST:event_txtFeePaidKeyPressed
 
+    private void cmbCourseNameMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cmbCourseNameMouseClicked
+        cmbCourseName.setBackground(Color.WHITE);
+        cmbCourseName.setBorder(UIManager.getBorder("TextField.border"));
+        cmbCourseName.setForeground(Color.BLACK);
+    }//GEN-LAST:event_cmbCourseNameMouseClicked
+
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         clearControls();
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        loadEnrollments();
-    }//GEN-LAST:event_jButton2ActionPerformed
+    private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
+        updateData();
+    }//GEN-LAST:event_btnUpdateActionPerformed
+
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+        deleteCourse();
+    }//GEN-LAST:event_btnDeleteActionPerformed
+
+    private void btnInsertActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInsertActionPerformed
+        try {
+            enrollStudent();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, ex.getMessage());
+        }
+    }//GEN-LAST:event_btnInsertActionPerformed
+
+    private void txtAttendanceKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtAttendanceKeyPressed
+        txtAttendance.setBackground(Color.WHITE);
+        txtAttendance.setBorder(UIManager.getBorder("TextField.border"));
+        txtAttendance.setForeground(Color.BLACK);
+    }//GEN-LAST:event_txtAttendanceKeyPressed
+
+    private void txtTotalFeeKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtTotalFeeKeyPressed
+        txtTotalFee.setBackground(Color.WHITE);
+        txtTotalFee.setBorder(UIManager.getBorder("TextField.border"));
+        txtTotalFee.setForeground(Color.BLACK);
+    }//GEN-LAST:event_txtTotalFeeKeyPressed
+
+    private void cmbPaymentStMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cmbPaymentStMouseClicked
+        cmbPaymentSt.setBorder(UIManager.getBorder("TextField.border"));
+    }//GEN-LAST:event_cmbPaymentStMouseClicked
+
+    private void txtEmailKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtEmailKeyPressed
+        txtEmail.setBackground(Color.WHITE);
+        txtEmail.setBorder(UIManager.getBorder("TextField.border"));
+        txtEmail.setForeground(Color.BLACK);
+    }//GEN-LAST:event_txtEmailKeyPressed
+
+    private void txtStdNameKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtStdNameKeyPressed
+        txtStdName.setBackground(Color.WHITE);
+        txtStdName.setBorder(UIManager.getBorder("TextField.border"));
+        txtStdName.setForeground(Color.BLACK);
+    }//GEN-LAST:event_txtStdNameKeyPressed
+
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        loadStatistics();
+    }//GEN-LAST:event_jButton5ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         clearFilters();
@@ -1158,69 +1180,13 @@ public void exportTableToCSV() {
         filterEnrollments();
     }//GEN-LAST:event_jButton3ActionPerformed
 
-    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-        loadStatistics();
-    }//GEN-LAST:event_jButton5ActionPerformed
+    private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
+        searchData();
+    }//GEN-LAST:event_btnSearchActionPerformed
 
-    private void btnCSVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCSVActionPerformed
-        exportTableToCSV();
-    }//GEN-LAST:event_btnCSVActionPerformed
-
-    private void txtStdIdKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtStdIdKeyPressed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtStdIdKeyPressed
-
-    private void txtStdNameKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtStdNameKeyPressed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtStdNameKeyPressed
-
-    private void cmbCourseIdItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cmbCourseIdItemStateChanged
-    try
-    {
-        int courseID=Integer.parseInt(cmbCourseId.getSelectedItem().toString());
-        query="Select course_name from courses where course_id='"+courseID+"'";
-        List<Map<String,Object>> courseNames=db.select(query);
-        for (Map<String,Object> Course : courseNames) {
-            txtCourseName.setText(Course.get("course_name").toString());
-        }
-    }catch(SQLException | NullPointerException e)
-    {
-        txtCourseName.setText("N/A");
-    }
-    }//GEN-LAST:event_cmbCourseIdItemStateChanged
-
-    private void txtStdIdKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtStdIdKeyTyped
-            try {
-        String text = txtStdId.getText();
-        if (text.isEmpty()) {
-            txtStdName.setText("");
-            return;
-        }
-        int studentId = Integer.parseInt(text);
-        query = "Select full_name from students where student_id='"+studentId+"'";
-        List<Map<String,Object>> studentNames = db.select(query);
-        txtStdName.setText(studentNames.isEmpty()
-                ? "N/A"
-                : studentNames.get(0).get("full_name").toString());
-    } catch (NumberFormatException ex) {
-        txtStdName.setText(""); // not a full number yet — not an error
-    } catch (SQLException ex) {
-        txtStdName.setText("N/A");
-    }
-
-//           try
-//    {
-//        int studentId=Integer.parseInt(txtStdId.getText());
-//        query="Select full_name from students where student_id='"+studentId+"'";
-//        List<Map<String,Object>> studentNames=db.select(query);
-//        for (Map<String,Object> Student : studentNames) {
-//            txtStdName.setText(Student.get("full_name").toString());
-//        }
-//    }catch(SQLException | NullPointerException e)
-//    {
-//        txtStdName.setText("N/A");
-//    } 
-    }//GEN-LAST:event_txtStdIdKeyTyped
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        loadEnrollments();
+    }//GEN-LAST:event_jButton2ActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -1230,7 +1196,7 @@ public void exportTableToCSV() {
     private javax.swing.JButton btnSearch;
     private javax.swing.JButton btnUpdate;
     private javax.swing.JCheckBox chkCertificate;
-    private javax.swing.JComboBox<String> cmbCourseId;
+    private javax.swing.JComboBox<String> cmbCourseName;
     private javax.swing.JComboBox<String> cmbPaymentSt;
     private javax.swing.JComboBox<String> cmbPaymentStatusFilter;
     private javax.swing.JButton jButton1;
@@ -1278,14 +1244,14 @@ public void exportTableToCSV() {
     private javax.swing.JPopupMenu tablePopupMenu;
     private javax.swing.JTable tblEnrollment;
     private javax.swing.JTextField txtAttendance;
-    private javax.swing.JTextField txtCourseName;
+    private javax.swing.JTextField txtEmail;
     private com.toedter.calendar.JDateChooser txtEnrollmentDate;
     private javax.swing.JTextField txtEnrollmentID;
     private javax.swing.JTextField txtFeePaid;
     private javax.swing.JTextField txtNote;
+    private javax.swing.JTextField txtPhone;
     private javax.swing.JTextField txtRemained;
     private javax.swing.JTextField txtSearch;
-    private javax.swing.JTextField txtStdId;
     private javax.swing.JTextField txtStdName;
     private javax.swing.JTextField txtTotalFee;
     // End of variables declaration//GEN-END:variables

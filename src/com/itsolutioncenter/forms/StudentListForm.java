@@ -1,207 +1,129 @@
-
 package com.itsolutioncenter.forms;
 
-/**
- *
- * @author Ahmad Shafiq Amiri
- */
 import com.itsolutioncenter.dao.DatabaseManager;
-import com.itsolutioncenter.util.ImageUtils;
-import javax.swing.*;
+import com.itsolutioncenter.model.Student;
 import java.awt.*;
-import java.sql.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import com.itsolutioncenter.model.Student;
+import javax.swing.*;
 
-public class StudentListForm extends JFrame {
-    private JPanel studentGridPanel;
-   private DatabaseManager dbManager=DatabaseManager.getInstance();
+/**
+ * @author Administrator
+ */
+public class StudentListForm extends JInternalFrame {
+    private final DatabaseManager dbManager = DatabaseManager.getInstance();
+
     public StudentListForm() {
         initComponents();
+        // Wired here (not inside initComponents) so the generated code block stays untouched.
+        btnRefreshList.addActionListener(e -> loadStudents());
         loadStudents();
     }
-   
-    private void initComponents() {
-        setTitle("Student List with Images");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new BorderLayout());
-       
-        // Header panel
-        JPanel headerPanel = new JPanel();
-        headerPanel.add(new JLabel("Student Directory", SwingConstants.CENTER));
-        headerPanel.setFont(new Font("Arial", Font.BOLD, 18));
-       
-        // Grid panel for students
-        studentGridPanel = new JPanel(new GridLayout(0, 4, 10, 10)); // 4 columns
-        studentGridPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-       
-        // Scroll pane
-        JScrollPane scrollPane = new JScrollPane(studentGridPanel);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-       
-        // Refresh button
-        JButton btnRefresh = new JButton("Refresh List");
-        btnRefresh.addActionListener(e -> loadStudents());
-       
-        add(headerPanel, BorderLayout.NORTH);
-        add(scrollPane, BorderLayout.CENTER);
-        add(btnRefresh, BorderLayout.SOUTH);
-       
-        setSize(900, 600);
-        setLocationRelativeTo(null);
-    }
-   
+
     private void loadStudents() {
+        btnRefreshList.setEnabled(false);
         studentGridPanel.removeAll();
-       
-        List<Student> students = getAllStudents();
-       
-        for (Student student : students) {
-            JPanel studentCard = createStudentCard(student);
-            studentGridPanel.add(studentCard);
-        }
-       
         studentGridPanel.revalidate();
         studentGridPanel.repaint();
-    }
-   
-    private JPanel createStudentCard(Student student) {
-        JPanel card = new JPanel(new BorderLayout());
-        card.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
-        card.setPreferredSize(new Dimension(200, 250));
-        card.setBackground(Color.WHITE);
-       
-        // Image panel
-        JLabel imageLabel = new JLabel();
-        imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
-       
-        // Load and resize image
-        ImageIcon imageIcon;
-        if (student.getImagePath() != null && !student.getImagePath().isEmpty()) {
-            imageIcon = ImageUtils.loadImage(student.getImagePath());
-        } else {
-            imageIcon = ImageUtils.getDefaultImage();
-        }
-       
-        ImageIcon resizedIcon = ImageUtils.resizeImage(imageIcon, 150, 150);
-        imageLabel.setIcon(resizedIcon);
-       
-        // Info panel
-        JPanel infoPanel = new JPanel(new GridLayout(4, 1, 5, 5));
-        infoPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-       
-        JLabel idLabel = new JLabel("ID: " + student.getStudentId());
-        JLabel nameLabel = new JLabel(student.getFullName());
-        JLabel courseLabel = new JLabel(student.getFathername());
-        JLabel emailLabel = new JLabel(student.getEmail());
-       
-        // Style labels
-        nameLabel.setFont(new Font("Arial", Font.BOLD, 12));
-        idLabel.setFont(new Font("Arial", Font.PLAIN, 10));
-        courseLabel.setFont(new Font("Arial", Font.ITALIC, 10));
-        emailLabel.setFont(new Font("Arial", Font.PLAIN, 9));
-       
-        infoPanel.add(nameLabel);
-        infoPanel.add(idLabel);
-        infoPanel.add(courseLabel);
-        infoPanel.add(emailLabel);
-       
-        card.add(imageLabel, BorderLayout.CENTER);
-        card.add(infoPanel, BorderLayout.SOUTH);
-       
-        // Add click listener
-        card.addMouseListener(new java.awt.event.MouseAdapter() {
+
+        new SwingWorker<List<Student>, Void>() {
             @Override
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                showStudentDetails(student);
+            protected List<Student> doInBackground() {
+                return getAllStudents();
             }
-        });
-       
-        return card;
+
+            @Override
+            protected void done() {
+                try {
+                    for (Student student : get()) {
+                        // One shared method reference instead of a fresh Runnable per card.
+                        studentGridPanel.add(new StudentCardPanel(student, StudentListForm.this::showStudentDetails));
+                    }
+                    studentGridPanel.revalidate();
+                    studentGridPanel.repaint();
+                } catch (Exception e) {
+                    showError("Failed to render student UI: " + e.getMessage());
+                } finally {
+                    btnRefreshList.setEnabled(true);
+                }
+            }
+        }.execute();
     }
-   
+
     private List<Student> getAllStudents() {
         List<Student> students = new ArrayList<>();
-       
-        try  {
-            String query = "SELECT * FROM students ORDER BY student_id";
-            ResultSet rs = dbManager.executeSimpleQuery(query);
-           
+        String query = "SELECT * FROM students ORDER BY student_id";
+
+        try (ResultSet rs = dbManager.executeSimpleQuery(query)) { // Try-with-resources avoids leaks
             while (rs.next()) {
-                Student student = new Student(
-                    rs.getString("student_id"),
-                    rs.getString("full_name"),
-                    rs.getString("father_name"),
-                    rs.getString("email"),
-                    rs.getString("phone"),
-                    rs.getString("image_path")
-                );
-                students.add(student);
+                students.add(new Student(
+                    rs.getString("student_id"), rs.getString("full_name"),
+                    rs.getString("father_name"), rs.getString("email"),
+                    rs.getString("phone"), rs.getString("image_path")
+                ));
             }
-           
         } catch (SQLException e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this,
-                "Error loading students: " + e.getMessage());
+            showError("Error loading students: " + e.getMessage());
         }
-       
         return students;
     }
-   
+
     private void showStudentDetails(Student student) {
-        JDialog dialog = new JDialog(this, "Student Details", true);
-        dialog.setLayout(new BorderLayout());
-        dialog.setSize(400, 500);
-       
-        // Image panel
-        JLabel imageLabel = new JLabel();
-        imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
-       
-        ImageIcon imageIcon;
-        if (student.getImagePath() != null && !student.getImagePath().isEmpty()) {
-            imageIcon = ImageUtils.loadImage(student.getImagePath());
-        } else {
-            imageIcon = ImageUtils.getDefaultImage();
-        }
-       
-        ImageIcon resizedIcon = ImageUtils.resizeImage(imageIcon, 200, 200);
-        imageLabel.setIcon(resizedIcon);
-       
-        // Details panel
-        JPanel detailsPanel = new JPanel(new GridLayout(6, 2, 10, 10));
-        detailsPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-       
-        detailsPanel.add(new JLabel("Student ID:"));
-        detailsPanel.add(new JLabel(student.getStudentId()));
-       
-        detailsPanel.add(new JLabel("Full Name:"));
-        detailsPanel.add(new JLabel(student.getFullName()));
-        
-        detailsPanel.add(new JLabel("Father Name:"));
-        detailsPanel.add(new JLabel(student.getFathername()));
-       
-        detailsPanel.add(new JLabel("Email:"));
-        detailsPanel.add(new JLabel(student.getEmail()));
-       
-        detailsPanel.add(new JLabel("Phone:"));
-        detailsPanel.add(new JLabel(student.getPhone()));
-       
-        // Close button
-        JButton btnClose = new JButton("Close");
-        btnClose.addActionListener(e -> dialog.dispose());
-       
-        dialog.add(imageLabel, BorderLayout.NORTH);
-        dialog.add(detailsPanel, BorderLayout.CENTER);
-        dialog.add(btnClose, BorderLayout.SOUTH);
-       
-        dialog.setLocationRelativeTo(this);
-        dialog.setVisible(true);
+        Window parent = SwingUtilities.getWindowAncestor(this);
+        Frame frame = (parent instanceof Frame f) ? f : null; // Pattern matching syntax
+        new StudentDetailsDialog(frame, true, student).setVisible(true);
     }
-   
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            new StudentListForm().setVisible(true);
-        });
+
+    private void showError(String message) {
+        JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        lblTitle = new javax.swing.JLabel();
+        scrollPane = new javax.swing.JScrollPane();
+        studentGridPanel = new javax.swing.JPanel();
+        btnRefreshList = new javax.swing.JButton();
+
+        setClosable(true);
+        setIconifiable(true);
+        setMaximizable(true);
+        setTitle("Student List Form");
+        setMinimumSize(new java.awt.Dimension(900, 600));
+        setPreferredSize(new java.awt.Dimension(900, 600));
+        setVisible(true);
+
+        lblTitle.setFont(new java.awt.Font("B Titr", 1, 12)); // NOI18N
+        lblTitle.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        lblTitle.setText("فهرست شاگردان");
+        getContentPane().add(lblTitle, java.awt.BorderLayout.PAGE_START);
+
+        studentGridPanel.setLayout(new java.awt.GridLayout(0, 4, 10, 10));
+        scrollPane.setViewportView(studentGridPanel);
+
+        getContentPane().add(scrollPane, java.awt.BorderLayout.CENTER);
+
+        btnRefreshList.setText("Refresh List");
+        getContentPane().add(btnRefreshList, java.awt.BorderLayout.PAGE_END);
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnRefreshList;
+    private javax.swing.JLabel lblTitle;
+    private javax.swing.JScrollPane scrollPane;
+    private javax.swing.JPanel studentGridPanel;
+    // End of variables declaration//GEN-END:variables
 }
