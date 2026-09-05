@@ -37,6 +37,11 @@ public class ImageUtils {
         Image scaledImage = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
         return new ImageIcon(scaledImage);
     }
+    public static ImageIcon loadOrDefault(String imagePath) {
+    return (imagePath != null && !imagePath.isEmpty())
+            ? loadImage(imagePath)
+            : getDefaultImage();
+}
    
     /**
      * Resize image to specific dimensions
